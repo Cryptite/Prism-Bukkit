@@ -1,13 +1,19 @@
 package me.botsko.prism.appliers;
 
 import me.botsko.prism.events.BlockStateChange;
+import org.bukkit.inventory.ItemStack;
 
 public class ChangeResult {
 
 	/**
 	 * 
 	 */
-	protected final BlockStateChange blockStateChange;
+	protected BlockStateChange blockStateChange;
+
+	/**
+	 *
+	 */
+	protected ItemStack itemStack;
 
 	/**
 	 * 
@@ -19,7 +25,7 @@ public class ChangeResult {
 	 * @param changeResultType
 	 */
 	public ChangeResult(ChangeResultType changeResultType) {
-		this(changeResultType, null);
+		this.changeResultType = changeResultType;
 	}
 
 	/**
@@ -33,11 +39,29 @@ public class ChangeResult {
 	}
 
 	/**
+	 *
+	 * @param changeResultType
+	 * @param itemStack
+	 */
+	public ChangeResult(ChangeResultType changeResultType, ItemStack itemStack) {
+		this.itemStack = itemStack;
+		this.changeResultType = changeResultType;
+	}
+
+	/**
 	 * 
 	 * @return
 	 */
 	public BlockStateChange getBlockStateChange() {
 		return blockStateChange;
+	}
+
+	/**
+	 *
+	 * @return
+	 */
+	public ItemStack getItemStack() {
+		return itemStack;
 	}
 
 	/**
