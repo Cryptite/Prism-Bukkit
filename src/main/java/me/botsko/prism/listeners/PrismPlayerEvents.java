@@ -464,9 +464,7 @@ public class PrismPlayerEvents implements Listener {
 				case CARROT:
 				case POTATO:
                 case BEETROOT:
-                case BAMBOO_SAPLING:
                 case KELP:
-                case SWEET_BERRY_BUSH:
                 case SUGAR_CANE:
                 case TALL_GRASS:
                 case DANDELION:

@@ -145,9 +145,9 @@ public class MaterialTag implements Tag<Material> {
 		return materials.toString();
 	}
 
-	public static final MaterialTag DYES = new MaterialTag(Material.INK_SAC, Material.RED_DYE, Material.GREEN_DYE,
+	public static final MaterialTag DYES = new MaterialTag(Material.INK_SAC,
 			Material.COCOA_BEANS, Material.LAPIS_LAZULI, Material.PURPLE_DYE, Material.CYAN_DYE,
-			Material.LIGHT_GRAY_DYE, Material.GRAY_DYE, Material.PINK_DYE, Material.LIME_DYE, Material.YELLOW_DYE,
+			Material.LIGHT_GRAY_DYE, Material.GRAY_DYE, Material.PINK_DYE, Material.LIME_DYE,
 			Material.LIGHT_BLUE_DYE, Material.MAGENTA_DYE, Material.ORANGE_DYE, Material.BONE_MEAL);
 
 	public static final MaterialTag PLANTS = new MaterialTag(Material.GRASS, Material.FERN, Material.DEAD_BUSH,
@@ -186,7 +186,5 @@ public class MaterialTag implements Tag<Material> {
 	public static final MaterialTag BANNERS = new MaterialTag(ALL_BANNERS).exclude("_WALL_", MatchMode.CONTAINS);
 
 	public static final MaterialTag WALL_BANNERS = new MaterialTag(Tag.BANNERS).exclude(BANNERS);
-
-	public static final MaterialTag BEDS = new MaterialTag(Tag.BEDS);
 
 }
