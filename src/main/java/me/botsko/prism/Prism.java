@@ -6,6 +6,8 @@ import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import io.papermc.lib.PaperLib;
 import me.botsko.prism.database.PrismDataSource;
 import me.botsko.prism.database.PrismDatabaseFactory;
+import me.botsko.prism.events.PrismBlocksRollbackEvent;
+import me.botsko.prism.events.PrismLoadedEvent;
 import me.botsko.prism.utils.MaterialAliases;
 import me.botsko.prism.actionlibs.*;
 import me.botsko.prism.appliers.PreviewSession;
@@ -274,6 +276,8 @@ public class Prism extends JavaPlugin {
 				}
 
 				items.initMaterials(Material.AIR);
+
+				Bukkit.getServer().getPluginManager().callEvent(new PrismLoadedEvent(this));
 			}
 	}
 
