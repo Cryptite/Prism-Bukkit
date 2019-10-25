@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import me.botsko.prism.events.PrismItemsRollbackEvent;
 import me.botsko.prism.utils.EntityUtils;
 import me.botsko.prism.Prism;
 import me.botsko.prism.actionlibs.QueryParameters;
@@ -23,6 +24,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 public class Preview implements Previewable {
 
@@ -65,6 +67,11 @@ public class Preview implements Previewable {
 	 * 
 	 */
 	protected final ArrayList<BlockStateChange> blockStateChanges = new ArrayList<>();
+
+	/**
+	 *
+	 */
+	protected final ArrayList<ItemStack> itemStackChanges = new ArrayList<>();
 
 	/**
 	 * 
@@ -318,12 +325,14 @@ public class Preview implements Previewable {
 						}
 						// Skipping
 						else if (result.getType().equals(ChangeResultType.SKIPPED)) {
+							itemStackChanges.add(result.itemStack);
 							skipped_block_count++;
 							iterator.remove();
 							continue;
 						}
 						// Skipping, but change planned
 						else if (result.getType().equals(ChangeResultType.PLANNED)) {
+							itemStackChanges.add(result.itemStack);
 							changes_planned_count++;
 							continue;
 						}
@@ -490,9 +499,15 @@ public class Preview implements Previewable {
 
 		// Trigger the events
 		if (processType.equals(PrismProcessType.ROLLBACK)) {
-			final PrismBlocksRollbackEvent event = new PrismBlocksRollbackEvent(blockStateChanges, player, parameters,
-					results);
-			plugin.getServer().getPluginManager().callEvent(event);
+			if (itemStackChanges.isEmpty()) {
+				final PrismBlocksRollbackEvent event = new PrismBlocksRollbackEvent(blockStateChanges, player, parameters,
+						results);
+				plugin.getServer().getPluginManager().callEvent(event);
+			} else {
+				final PrismItemsRollbackEvent event = new PrismItemsRollbackEvent(itemStackChanges, player, parameters,
+						results);
+				plugin.getServer().getPluginManager().callEvent(event);
+			}
 		}
 
 		plugin.eventTimer.recordTimedEvent("applier function complete");

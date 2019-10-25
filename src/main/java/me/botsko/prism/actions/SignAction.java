@@ -1,5 +1,6 @@
 package me.botsko.prism.actions;
 
+import com.destroystokyo.paper.MaterialTags;
 import me.botsko.prism.utils.TypeUtils;
 import me.botsko.prism.actionlibs.QueryParameters;
 import me.botsko.prism.appliers.ChangeResult;
@@ -91,11 +92,11 @@ public class SignAction extends GenericAction {
 
 		// Could be legacy (x - 1.13) wall sign
 		if (Objects.equals(actionData.sign_type, "WALL_SIGN")) {
-			return Material.OAK_WALL_SIGN;
+			return Material.WALL_SIGN;
 		}
 
 		// Either was legacy standing sign or unknown/invalid. Default standing sign.
-		return Material.OAK_SIGN;
+		return Material.SIGN;
 	}
 
 	/**
@@ -132,7 +133,7 @@ public class SignAction extends GenericAction {
 		final Block block = getWorld().getBlockAt(getLoc());
 
 		// Ensure a sign exists there (and no other block)
-		if (block.getType().equals(Material.AIR) || Tag.SIGNS.isTagged(block.getType())) {
+		if (block.getType().equals(Material.AIR) || MaterialTags.SIGNS.isTagged(block.getType())) {
 
 			if (block.getType().equals(Material.AIR)) {
 				block.setType(getSignType());

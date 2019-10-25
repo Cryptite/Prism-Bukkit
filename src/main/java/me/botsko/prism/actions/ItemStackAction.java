@@ -399,13 +399,13 @@ public class ItemStackAction extends GenericAction {
 	protected ChangeResult placeItems(Player player, QueryParameters parameters, boolean is_preview) {
 		
 		if(actionData == null) {
-			return new ChangeResult(ChangeResultType.SKIPPED, null);
+			return new ChangeResult(ChangeResultType.SKIPPED, item);
 		}
 
 		ChangeResultType result = ChangeResultType.SKIPPED;
 
 		if (is_preview) {
-			return new ChangeResult(ChangeResultType.PLANNED, null);
+			return new ChangeResult(ChangeResultType.PLANNED, item);
 		}
 
 		if (Prism.config.getBoolean("prism.appliers.allow-rollback-items-removed-from-container")) {
@@ -424,7 +424,7 @@ public class ItemStackAction extends GenericAction {
 				else {
 					// Skip if the player isn't online
 					Prism.debug("Skipping inventory process because player is offline");
-					return new ChangeResult(ChangeResultType.SKIPPED, null);
+					return new ChangeResult(ChangeResultType.SKIPPED, item);
 				}
 			}
 			else {
@@ -669,6 +669,6 @@ public class ItemStackAction extends GenericAction {
 				}
 			}
 		}
-		return new ChangeResult(result, null);
+		return new ChangeResult(result, item);
 	}
 }

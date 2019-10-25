@@ -1,5 +1,7 @@
 package me.botsko.prism.actions;
 
+import com.destroystokyo.paper.MaterialSetTag;
+import com.destroystokyo.paper.MaterialTags;
 import me.botsko.prism.utils.TypeUtils;
 import me.botsko.prism.Prism;
 import me.botsko.prism.actionlibs.QueryParameters;
@@ -84,7 +86,7 @@ public class BlockAction extends GenericAction {
 			}
 
 			// signs
-			else if (Tag.SIGNS.isTagged(state.getType())) {
+			else if (MaterialTags.SIGNS.isTagged(state.getType())) {
 				final SignActionData signActionData = new SignActionData();
 				final Sign s = (Sign) state;
 				signActionData.lines = s.getLines();
@@ -123,7 +125,7 @@ public class BlockAction extends GenericAction {
 			else if (getMaterial() == Material.SPAWNER) {
 				actionData = gson().fromJson(data, SpawnerActionData.class);
 			}
-			else if (Tag.SIGNS.isTagged(getMaterial())) {
+			else if (MaterialTags.SIGNS.isTagged(getMaterial())) {
 				actionData = gson().fromJson(data, SignActionData.class);
 			}
 			else if (getMaterial() == Material.COMMAND_BLOCK) {
@@ -428,7 +430,7 @@ public class BlockAction extends GenericAction {
 			  Signs
 			 */
 			if (parameters.getProcessType() == PrismProcessType.ROLLBACK
-					&& Tag.SIGNS.isTagged(getMaterial())
+					&& MaterialTags.SIGNS.isTagged(getMaterial())
 					&& blockActionData instanceof SignActionData) {
 
 				final SignActionData s = (SignActionData) blockActionData;
