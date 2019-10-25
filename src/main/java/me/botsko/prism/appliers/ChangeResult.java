@@ -2,7 +2,6 @@ package me.botsko.prism.appliers;
 
 import me.botsko.prism.events.BlockStateChange;
 import me.botsko.prism.events.ItemStackChange;
-import org.bukkit.inventory.ItemStack;
 
 public class ChangeResult {
 

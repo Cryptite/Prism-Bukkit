@@ -3,7 +3,6 @@ package me.botsko.prism.events;
 import me.botsko.prism.Prism;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
-import org.jetbrains.annotations.NotNull;
 
 public class PrismLoadedEvent extends Event {
 
@@ -23,7 +22,6 @@ public class PrismLoadedEvent extends Event {
     /**
      * Required by bukkit for proper event handling.
      */
-    @NotNull
     @Override
     public HandlerList getHandlers() {
         return handlers;

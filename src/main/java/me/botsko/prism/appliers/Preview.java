@@ -62,12 +62,12 @@ public class Preview implements Previewable {
 	/**
 	 * 
 	 */
-	protected final HashMap<Entity, Integer> entities_moved = new HashMap<>();
+	protected final HashMap<Entity, Integer> entities_moved = new HashMap<Entity, Integer>();
 
 	/**
 	 * 
 	 */
-	protected final ArrayList<BlockStateChange> blockStateChanges = new ArrayList<>();
+	protected final ArrayList<BlockStateChange> blockStateChanges = new ArrayList<BlockStateChange>();
 
 	/**
 	 *
@@ -99,7 +99,7 @@ public class Preview implements Previewable {
 	/**
 	 * 
 	 */
-	protected final List<Handler> worldChangeQueue = Collections.synchronizedList(new LinkedList<>());
+	protected final List<Handler> worldChangeQueue = Collections.synchronizedList(new LinkedList<Handler>());
 
 	/**
 	 * 
@@ -216,7 +216,7 @@ public class Preview implements Previewable {
 				}
 
 				boolean show_nearby = true;
-				if (oldwand instanceof RollbackWand) {
+				if (oldwand != null && oldwand instanceof RollbackWand) {
 					show_nearby = false;
 				}
 				if (show_nearby) {
@@ -247,140 +247,146 @@ public class Preview implements Previewable {
 
 		blockChangesRead = 0;
 
-		worldChangeQueueTaskId = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
+		worldChangeQueueTaskId = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable() {
 
-			if (plugin.getConfig().getBoolean("prism.debug")) {
-				Prism.debug("World change queue size: " + worldChangeQueue.size());
-			}
+			@Override
+			public void run() {
 
-			if (worldChangeQueue.isEmpty()) {
-				sender.sendMessage(
-						Prism.messenger.playerError(ChatColor.GRAY + "No actions found that match the criteria."));
-				return;
-			}
+				if (plugin.getConfig().getBoolean("prism.debug")) {
+					Prism.debug("World change queue size: " + worldChangeQueue.size());
+				}
 
-			int iterationCount = 0;
-			final int currentQueueOffset = blockChangesRead;
-			if (currentQueueOffset < worldChangeQueue.size()) {
-				for (final Iterator<Handler> iterator = worldChangeQueue.listIterator(currentQueueOffset); iterator
-						.hasNext(); ) {
-					final Handler a = iterator.next();
+				if (worldChangeQueue.isEmpty()) {
+					sender.sendMessage(
+							Prism.messenger.playerError(ChatColor.GRAY + "No actions found that match the criteria."));
+					return;
+				}
 
-					// Only iterate the queue using a diff offset when
-					// previewing, actual rollbacks
-					// will remove from the queue and we'd begin at zero
-					// again
-					if (is_preview)
-						blockChangesRead++;
+				int iterationCount = 0;
+				final int currentQueueOffset = blockChangesRead;
+				if (currentQueueOffset < worldChangeQueue.size()) {
+					for (final Iterator<Handler> iterator = worldChangeQueue.listIterator(currentQueueOffset); iterator
+							.hasNext();) {
+						final Handler a = iterator.next();
 
-					// We only want to process a set number of block changes
-					// per
-					// schedule. Breaking here will leave the rest in the
-					// queue.
-					iterationCount++;
-					if (iterationCount >= 1000) {
-						break;
-					}
+						// Only iterate the queue using a diff offset when
+						// previewing, actual rollbacks
+						// will remove from the queue and we'd begin at zero
+						// again
+						if (is_preview)
+							blockChangesRead++;
 
-					// No sense in trying to rollback
-					// when the type doesn't support it.
-					if (processType.equals(PrismProcessType.ROLLBACK) && !a.getActionType().canRollback()) {
-						iterator.remove();
-						continue;
-					}
-
-					// No sense in trying to restore
-					// when the type doesn't support it.
-					if (processType.equals(PrismProcessType.RESTORE) && !a.getActionType().canRestore()) {
-						iterator.remove();
-						continue;
-					}
-
-					/*
-					  Reverse or restore block changes by allowing the handler to decide what needs
-					  to happen.
-					 */
-					ChangeResult result = null;
-
-					try {
-						if (processType.equals(PrismProcessType.ROLLBACK)) {
-							result = a.applyRollback(player, parameters, is_preview);
-						}
-						if (processType.equals(PrismProcessType.RESTORE)) {
-							result = a.applyRestore(player, parameters, is_preview);
-						}
-						if (processType.equals(PrismProcessType.UNDO)) {
-							result = a.applyUndo(player, parameters, is_preview);
+						// We only want to process a set number of block changes
+						// per
+						// schedule. Breaking here will leave the rest in the
+						// queue.
+						iterationCount++;
+						if (iterationCount >= 1000) {
+							break;
 						}
 
-						// No action, continue
-						if (result == null) {
+						// No sense in trying to rollback
+						// when the type doesn't support it.
+						if (processType.equals(PrismProcessType.ROLLBACK) && !a.getActionType().canRollback()) {
 							iterator.remove();
 							continue;
 						}
-						// Skip actions that have not returned any results
-						if (result.getType() == null) {
+
+						// No sense in trying to restore
+						// when the type doesn't support it.
+						if (processType.equals(PrismProcessType.RESTORE) && !a.getActionType().canRestore()) {
+							iterator.remove();
+							continue;
+						}
+
+						/**
+						 * Reverse or restore block changes by allowing the handler to decide what needs
+						 * to happen.
+						 */
+						ChangeResult result = null;
+
+						try {
+							if (processType.equals(PrismProcessType.ROLLBACK)) {
+								result = a.applyRollback(player, parameters, is_preview);
+							}
+							if (processType.equals(PrismProcessType.RESTORE)) {
+								result = a.applyRestore(player, parameters, is_preview);
+							}
+							if (processType.equals(PrismProcessType.UNDO)) {
+								result = a.applyUndo(player, parameters, is_preview);
+							}
+
+							// No action, continue
+							if (result == null) {
+								iterator.remove();
+								continue;
+							}
+							// Skip actions that have not returned any results
+							if (result.getType() == null) {
+								skipped_block_count++;
+								iterator.remove();
+								continue;
+							}
+							// Skipping
+							else if (result.getType().equals(ChangeResultType.SKIPPED)) {
+								skipped_block_count++;
+								iterator.remove();
+								continue;
+							}
+							// Skipping, but change planned
+							else if (result.getType().equals(ChangeResultType.PLANNED)) {
+								itemStackChanges.add(result.itemStackChange);
+								changes_planned_count++;
+								continue;
+							}
+							// Change applied
+							else {
+								blockStateChanges.add(result.getBlockStateChange());
+								changes_applied_count++;
+							}
+							// Unless a preview, remove from queue
+							if (!is_preview) {
+								iterator.remove();
+							}
+						}
+						catch (final Exception e) {
+
+							// Something caused an exception. We *have* to catch
+							// this
+							// so we can remove the item from the queue,
+							// otherwise
+							// the cycle will just spin in eternity and all
+							// damnation, normally killing their server through
+							// log files in the GB.
+
+							// Log the error so they have something to report
+							String line = "Applier error:";
+							String message = e.getMessage();
+							
+							if(message != null) {
+								line += (' ' + message);
+							}
+							
+							Prism.log(line);
+							e.printStackTrace();
+
+							// Count as skipped, remove from queue
 							skipped_block_count++;
 							iterator.remove();
-							continue;
-						}
-						// Skipping
-						else if (result.getType().equals(ChangeResultType.SKIPPED)) {
-							skipped_block_count++;
-							iterator.remove();
-							continue;
-						}
-						// Skipping, but change planned
-						else if (result.getType().equals(ChangeResultType.PLANNED)) {
-							itemStackChanges.add(result.itemStackChange);
-							changes_planned_count++;
-							continue;
-						}
-						// Change applied
-						else {
-							blockStateChanges.add(result.getBlockStateChange());
-							changes_applied_count++;
-						}
-						// Unless a preview, remove from queue
-						if (!is_preview) {
-							iterator.remove();
-						}
-					} catch (final Exception e) {
 
-						// Something caused an exception. We *have* to catch
-						// this
-						// so we can remove the item from the queue,
-						// otherwise
-						// the cycle will just spin in eternity and all
-						// damnation, normally killing their server through
-						// log files in the GB.
-
-						// Log the error so they have something to report
-						String line = "Applier error:";
-						String message = e.getMessage();
-
-						if (message != null) {
-							line += (' ' + message);
 						}
-
-						Prism.log(line);
-						e.printStackTrace();
-
-						// Count as skipped, remove from queue
-						skipped_block_count++;
-						iterator.remove();
-
 					}
 				}
-			}
 
-			// The task for this action is done being used
-			if (worldChangeQueue.isEmpty() || blockChangesRead >= worldChangeQueue.size()) {
-				plugin.getServer().getScheduler().cancelTask(worldChangeQueueTaskId);
-				if (is_preview) {
-					postProcessPreview();
-				} else {
-					postProcess();
+				// The task for this action is done being used
+				if (worldChangeQueue.isEmpty() || blockChangesRead >= worldChangeQueue.size()) {
+					plugin.getServer().getScheduler().cancelTask(worldChangeQueueTaskId);
+					if (is_preview) {
+						postProcessPreview();
+					}
+					else {
+						postProcess();
+					}
 				}
 			}
 		}, 2L, 2L);

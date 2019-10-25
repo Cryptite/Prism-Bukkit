@@ -1,11 +1,11 @@
 package me.botsko.prism.events;
 
-import java.util.ArrayList;
-
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
 
 public class PrismBlocksDrainEvent extends Event {
 
