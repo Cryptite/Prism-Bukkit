@@ -6,6 +6,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import me.botsko.prism.events.ItemStackChange;
 import me.botsko.prism.utils.EntityUtils;
 import me.botsko.prism.utils.InventoryUtils;
 import me.botsko.prism.Prism;
@@ -397,20 +398,20 @@ public class ItemStackAction extends GenericAction {
 	 * @return
 	 */
 	protected ChangeResult placeItems(Player player, QueryParameters parameters, boolean is_preview) {
-		
+		final Block block = getWorld().getBlockAt(getLoc());
+
 		if(actionData == null) {
-			return new ChangeResult(ChangeResultType.SKIPPED, item);
+			return new ChangeResult(ChangeResultType.SKIPPED);
 		}
 
 		ChangeResultType result = ChangeResultType.SKIPPED;
 
 		if (is_preview) {
-			return new ChangeResult(ChangeResultType.PLANNED, item);
+			return new ChangeResult(ChangeResultType.PLANNED, new ItemStackChange(item, block));
 		}
 
 		if (Prism.config.getBoolean("prism.appliers.allow-rollback-items-removed-from-container")) {
 
-			final Block block = getWorld().getBlockAt(getLoc());
 			Inventory inventory = null;
 
 			// Item drop/pickup from player inventories
@@ -424,7 +425,7 @@ public class ItemStackAction extends GenericAction {
 				else {
 					// Skip if the player isn't online
 					Prism.debug("Skipping inventory process because player is offline");
-					return new ChangeResult(ChangeResultType.SKIPPED, item);
+					return new ChangeResult(ChangeResultType.SKIPPED, new ItemStackChange(item, block));
 				}
 			}
 			else {
@@ -669,6 +670,7 @@ public class ItemStackAction extends GenericAction {
 				}
 			}
 		}
-		return new ChangeResult(result, item);
+
+		return new ChangeResult(result, new ItemStackChange(item, block));
 	}
 }

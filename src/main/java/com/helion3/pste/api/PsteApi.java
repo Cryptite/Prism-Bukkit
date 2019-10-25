@@ -9,8 +9,6 @@ import java.io.Reader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import javax.xml.bind.DatatypeConverter;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -53,8 +51,8 @@ public class PsteApi {
 		connection.setRequestMethod("POST");
 		connection.setRequestProperty("Content-Length", Integer.toString(jsonPayload.getBytes().length));
 		connection.setRequestProperty("Content-Language", "en-US");
-		connection.setRequestProperty("Authorization",
-				"Basic " + DatatypeConverter.printBase64Binary((apiUsername + ":" + apiKey).getBytes()));
+//		connection.setRequestProperty("Authorization",
+//				"Basic " + DatatypeConverter.printBase64Binary((apiUsername + ":" + apiKey).getBytes()));
 		connection.setUseCaches(false);
 		connection.setDoInput(true);
 		connection.setDoOutput(true);

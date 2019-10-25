@@ -19,7 +19,7 @@ public class PrismItemsRollbackEvent extends Event {
 	/**
 	 *
 	 */
-	private final ArrayList<ItemStack> itemStacks;
+	private final ArrayList<ItemStackChange> itemStackChanges;
 
 	/**
 	 *
@@ -38,14 +38,14 @@ public class PrismItemsRollbackEvent extends Event {
 
 	/**
 	 *
-	 * @param itemStacks
+	 * @param itemStackChanges
 	 * @param onBehalfOf
 	 * @param parameters
 	 * @param result
 	 */
-	public PrismItemsRollbackEvent(ArrayList<ItemStack> itemStacks, Player onBehalfOf,
+	public PrismItemsRollbackEvent(ArrayList<ItemStackChange> itemStackChanges, Player onBehalfOf,
                                    QueryParameters parameters, ApplierResult result) {
-		this.itemStacks = itemStacks;
+		this.itemStackChanges = itemStackChanges;
 		this.onBehalfOf = onBehalfOf;
 		this.parameters = parameters;
 		this.result = result;
@@ -54,8 +54,8 @@ public class PrismItemsRollbackEvent extends Event {
 	/**
 	 * @return the originalBlock
 	 */
-	public ArrayList<ItemStack> getItemStacks() {
-		return itemStacks;
+	public ArrayList<ItemStackChange> getItemStackChanges() {
+		return itemStackChanges;
 	}
 
 	/**

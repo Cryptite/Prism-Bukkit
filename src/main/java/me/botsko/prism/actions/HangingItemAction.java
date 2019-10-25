@@ -106,7 +106,7 @@ public class HangingItemAction extends GenericAction {
 	public ChangeResult hangItem(Player player, QueryParameters parameters, boolean is_preview) {
 		
 		if(actionData == null) {
-			return new ChangeResult(ChangeResultType.SKIPPED, null);
+			return new ChangeResult(ChangeResultType.SKIPPED);
 		}
 
 		final BlockFace attachedFace = getDirection();
@@ -116,24 +116,24 @@ public class HangingItemAction extends GenericAction {
 
 		// Ensure there's a block at this location that accepts an attachment
 		if (BlockUtils.materialMeansBlockDetachment(loc.getBlock().getType())) {
-			return new ChangeResult(ChangeResultType.SKIPPED, null);
+			return new ChangeResult(ChangeResultType.SKIPPED);
 		}
 
 		try {
 			if (getHangingType().equals("item_frame")) {
 				final Hanging hangingItem = getWorld().spawn(loc, ItemFrame.class);
 				hangingItem.setFacingDirection(attachedFace, true);
-				return new ChangeResult(ChangeResultType.APPLIED, null);
+				return new ChangeResult(ChangeResultType.APPLIED);
 			}
 			else if (getHangingType().equals("painting")) {
 				final Hanging hangingItem = getWorld().spawn(loc, Painting.class);
 				hangingItem.setFacingDirection(getDirection(), true);
-				return new ChangeResult(ChangeResultType.APPLIED, null);
+				return new ChangeResult(ChangeResultType.APPLIED);
 			}
 		}
 		catch (final IllegalArgumentException e) {
 			// Something interfered with being able to place the painting
 		}
-		return new ChangeResult(ChangeResultType.SKIPPED, null);
+		return new ChangeResult(ChangeResultType.SKIPPED);
 	}
 }

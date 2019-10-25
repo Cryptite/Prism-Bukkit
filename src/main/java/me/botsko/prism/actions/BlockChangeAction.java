@@ -104,7 +104,7 @@ public class BlockChangeAction extends BlockAction {
 				// System.out.print("Block change skipped because new id doesn't match what's
 				// there now. There now: "
 				// + block.getTypeId() + " vs " + new_id);
-				return new ChangeResult(ChangeResultType.SKIPPED, null);
+				return new ChangeResult(ChangeResultType.SKIPPED);
 			}
 		}
 		else if (parameters.getProcessType().equals(PrismProcessType.RESTORE)) {
@@ -126,7 +126,7 @@ public class BlockChangeAction extends BlockAction {
 				// System.out.print("Block change skipped because old id doesn't match what's
 				// there now. There now: "
 				// + block.getTypeId() + " vs " + old_id);
-				return new ChangeResult(ChangeResultType.SKIPPED, null);
+				return new ChangeResult(ChangeResultType.SKIPPED);
 			}
 		}
 		if (parameters.getProcessType().equals(PrismProcessType.UNDO)) {
@@ -134,6 +134,6 @@ public class BlockChangeAction extends BlockAction {
 			b.setBlockData(old_data);
 			return b.placeBlock(player, parameters, is_preview, block, is_deferred);
 		}
-		return new ChangeResult(ChangeResultType.SKIPPED, null);
+		return new ChangeResult(ChangeResultType.SKIPPED);
 	}
 }

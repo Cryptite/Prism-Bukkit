@@ -98,8 +98,8 @@ public class VehicleAction extends GenericAction {
 				break;
 		}
 		if (vehicle != null) {
-			return new ChangeResult(ChangeResultType.APPLIED, null);
+			return new ChangeResult(ChangeResultType.APPLIED);
 		}
-		return new ChangeResult(ChangeResultType.SKIPPED, null);
+		return new ChangeResult(ChangeResultType.SKIPPED);
 	}
 }

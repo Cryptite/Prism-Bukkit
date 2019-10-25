@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import me.botsko.prism.events.ItemStackChange;
 import me.botsko.prism.events.PrismItemsRollbackEvent;
 import me.botsko.prism.utils.EntityUtils;
 import me.botsko.prism.Prism;
@@ -71,7 +72,7 @@ public class Preview implements Previewable {
 	/**
 	 *
 	 */
-	protected final ArrayList<ItemStack> itemStackChanges = new ArrayList<>();
+	protected final ArrayList<ItemStackChange> itemStackChanges = new ArrayList<>();
 
 	/**
 	 * 
@@ -325,14 +326,13 @@ public class Preview implements Previewable {
 						}
 						// Skipping
 						else if (result.getType().equals(ChangeResultType.SKIPPED)) {
-							itemStackChanges.add(result.itemStack);
 							skipped_block_count++;
 							iterator.remove();
 							continue;
 						}
 						// Skipping, but change planned
 						else if (result.getType().equals(ChangeResultType.PLANNED)) {
-							itemStackChanges.add(result.itemStack);
+							itemStackChanges.add(result.itemStackChange);
 							changes_planned_count++;
 							continue;
 						}

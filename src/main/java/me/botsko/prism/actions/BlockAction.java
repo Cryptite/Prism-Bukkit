@@ -330,14 +330,14 @@ public class BlockAction extends GenericAction {
 
 		if (cancelIfBadPlace && !BlockUtils.isAcceptableForBlockPlace(block.getType())) {
 			// System.out.print("Block skipped due to being unaccaptable for block place.");
-			return new ChangeResult(ChangeResultType.SKIPPED, null);
+			return new ChangeResult(ChangeResultType.SKIPPED);
 		}
 
 		// On the blacklist (except an undo)
 		if (Prism.getIllegalBlocks().contains(getMaterial())
 				&& !parameters.getProcessType().equals(PrismProcessType.UNDO)) {
 			// System.out.print("Block skipped because it's not allowed to be placed.");
-			return new ChangeResult(ChangeResultType.SKIPPED, null);
+			return new ChangeResult(ChangeResultType.SKIPPED);
 		}
 
 		// If we're not in a preview, actually apply this block
@@ -356,7 +356,7 @@ public class BlockAction extends GenericAction {
 				}
 				else {
 					// Prism.debug("Lilypad skipped because no water exists below.");
-					return new ChangeResult(ChangeResultType.SKIPPED, null);
+					return new ChangeResult(ChangeResultType.SKIPPED);
 				}
 			}
 
@@ -367,7 +367,7 @@ public class BlockAction extends GenericAction {
 					final Block above = obsidian.getRelative(BlockFace.UP);
 					if (!(above.getType() == Material.NETHER_PORTAL)) {
 						above.setType(Material.FIRE);
-						return new ChangeResult(ChangeResultType.APPLIED, null);
+						return new ChangeResult(ChangeResultType.APPLIED);
 					}
 				}
 			}
@@ -470,7 +470,7 @@ public class BlockAction extends GenericAction {
 				sibling = block.getRelative(BlockFace.DOWN).getState();
 
 				if (cancelIfBadPlace && !MaterialTag.SOIL_CANDIDATES.isTagged(sibling.getType())) {
-					return new ChangeResult(ChangeResultType.SKIPPED, null);
+					return new ChangeResult(ChangeResultType.SKIPPED);
 				}
 
 				sibling.setType(Material.FARMLAND);
@@ -485,7 +485,7 @@ public class BlockAction extends GenericAction {
 
 					if (cancelIfBadPlace && !BlockUtils.isAcceptableForBlockPlace(sibling.getType())) {
 						// Upper half fail
-						return new ChangeResult(ChangeResultType.SKIPPED, null);
+						return new ChangeResult(ChangeResultType.SKIPPED);
 					}
 
 					sibling.setType(block.getType());
@@ -552,7 +552,7 @@ public class BlockAction extends GenericAction {
 			if (!BlockUtils.isAcceptableForBlockPlace(block.getType())
 					&& !BlockUtils.areBlockIdsSameCoreItem(block.getType(), getMaterial())
 					&& !parameters.hasFlag(Flag.OVERWRITE)) {
-				return new ChangeResult(ChangeResultType.SKIPPED, null);
+				return new ChangeResult(ChangeResultType.SKIPPED);
 			}
 
 			if (!is_preview) {
@@ -591,6 +591,6 @@ public class BlockAction extends GenericAction {
 			}
 			return new ChangeResult(ChangeResultType.APPLIED, stateChange);
 		}
-		return new ChangeResult(ChangeResultType.SKIPPED, null);
+		return new ChangeResult(ChangeResultType.SKIPPED);
 	}
 }

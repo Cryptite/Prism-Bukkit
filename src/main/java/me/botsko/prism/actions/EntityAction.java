@@ -100,7 +100,7 @@ public class EntityAction extends GenericAction {
 	@Override
 	public ChangeResult applyRollback(Player player, QueryParameters parameters, boolean is_preview) {
 		if(serializer == null) {
-			return new ChangeResult(ChangeResultType.SKIPPED, null);
+			return new ChangeResult(ChangeResultType.SKIPPED);
 		}
 		
 		EntityType entityType = getEntityType(serializer.getEntityName());
@@ -110,13 +110,13 @@ public class EntityAction extends GenericAction {
 
 				loc.getWorld().spawn(loc, entityType.getEntityClass(), entity -> serializer.deserialize(entity));
 
-				return new ChangeResult(ChangeResultType.APPLIED, null);
+				return new ChangeResult(ChangeResultType.APPLIED);
 
 			}
 			else
-				return new ChangeResult(ChangeResultType.PLANNED, null);
+				return new ChangeResult(ChangeResultType.PLANNED);
 		}
 		else
-			return new ChangeResult(ChangeResultType.SKIPPED, null);
+			return new ChangeResult(ChangeResultType.SKIPPED);
 	}
 }
