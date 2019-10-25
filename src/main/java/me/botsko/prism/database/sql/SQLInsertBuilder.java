@@ -130,7 +130,8 @@ public class SQLInsertBuilder extends QueryBuilder implements InsertQuery {
         batchConnection.commit();
         Prism.debug("Batch insert was commit: " + System.currentTimeMillis());
         processExtraData(batchStatement.getGeneratedKeys());
-
+        batchStatement.close();
+        batchConnection.close();
     }
 
     public void processExtraData(ResultSet keys) throws SQLException {

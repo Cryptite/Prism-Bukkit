@@ -72,6 +72,7 @@ public abstract class SQLPrismDataSource implements PrismDataSource {
                 return database.getConnection();
         } catch (SQLException e) {
             log.info("Could not retreive a connection");
+            e.printStackTrace();
             return null;
         }
         return null;
