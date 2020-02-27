@@ -24,12 +24,12 @@ public class SignAction extends GenericAction {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	protected SignChangeActionData actionData;
 
 	/**
-	 * 
+	 *
 	 * @param block
 	 * @param lines
 	 */
@@ -52,7 +52,7 @@ public class SignAction extends GenericAction {
 			actionData.lines = lines;
 		}
 	}
-	
+
 	@Override
 	public void deserialize(String data) {
 		if (data != null && !data.isEmpty()) {
@@ -71,7 +71,7 @@ public class SignAction extends GenericAction {
 	}
 
 	/**
-	 * 
+	 *
 	 * @return
 	 */
 	public String[] getLines() {
@@ -79,7 +79,7 @@ public class SignAction extends GenericAction {
 	}
 
 	/**
-	 * 
+	 *
 	 * @return
 	 */
 	public Material getSignType() {
@@ -92,15 +92,15 @@ public class SignAction extends GenericAction {
 
 		// Could be legacy (x - 1.13) wall sign
 		if (Objects.equals(actionData.sign_type, "WALL_SIGN")) {
-			return Material.WALL_SIGN;
+			return Material.OAK_WALL_SIGN;
 		}
 
 		// Either was legacy standing sign or unknown/invalid. Default standing sign.
-		return Material.SIGN;
+		return Material.OAK_SIGN;
 	}
 
 	/**
-	 * 
+	 *
 	 * @return
 	 */
 	public BlockFace getFacing() {
@@ -108,7 +108,7 @@ public class SignAction extends GenericAction {
 	}
 
 	/**
-	 * 
+	 *
 	 * @return
 	 */
 	@Override
