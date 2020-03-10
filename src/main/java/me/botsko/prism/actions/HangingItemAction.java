@@ -85,19 +85,19 @@ public class HangingItemAction extends GenericAction {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Override
-	public ChangeResult applyRollback(Player player, QueryParameters parameters, boolean is_preview) {
-		return hangItem(player, parameters, is_preview);
+	public ChangeResult applyRollback(Player player, QueryParameters parameters, boolean isPreview) {
+		return hangItem(player, parameters, isPreview);
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Override
-	public ChangeResult applyRestore(Player player, QueryParameters parameters, boolean is_preview) {
-		return hangItem(player, parameters, is_preview);
+	public ChangeResult applyRestore(Player player, QueryParameters parameters, boolean isPreview) {
+		return hangItem(player, parameters, isPreview);
 	}
 
 	/**
@@ -106,7 +106,7 @@ public class HangingItemAction extends GenericAction {
 	public ChangeResult hangItem(Player player, QueryParameters parameters, boolean is_preview) {
 		
 		if(actionData == null) {
-			return new ChangeResult(ChangeResultType.SKIPPED);
+			return new ChangeResult(ChangeResultType.SKIPPED, null);
 		}
 
 		final BlockFace attachedFace = getDirection();
@@ -116,24 +116,24 @@ public class HangingItemAction extends GenericAction {
 
 		// Ensure there's a block at this location that accepts an attachment
 		if (BlockUtils.materialMeansBlockDetachment(loc.getBlock().getType())) {
-			return new ChangeResult(ChangeResultType.SKIPPED);
+			return new ChangeResult(ChangeResultType.SKIPPED, null);
 		}
 
 		try {
 			if (getHangingType().equals("item_frame")) {
 				final Hanging hangingItem = getWorld().spawn(loc, ItemFrame.class);
 				hangingItem.setFacingDirection(attachedFace, true);
-				return new ChangeResult(ChangeResultType.APPLIED);
+				return new ChangeResult(ChangeResultType.APPLIED, null);
 			}
 			else if (getHangingType().equals("painting")) {
 				final Hanging hangingItem = getWorld().spawn(loc, Painting.class);
 				hangingItem.setFacingDirection(getDirection(), true);
-				return new ChangeResult(ChangeResultType.APPLIED);
+				return new ChangeResult(ChangeResultType.APPLIED, null);
 			}
 		}
 		catch (final IllegalArgumentException e) {
 			// Something interfered with being able to place the painting
 		}
-		return new ChangeResult(ChangeResultType.SKIPPED);
+		return new ChangeResult(ChangeResultType.SKIPPED, null);
 	}
 }

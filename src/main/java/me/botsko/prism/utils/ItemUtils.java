@@ -63,7 +63,7 @@ public class ItemUtils {
 	}
 	
 	public static int getItemDamage(ItemStack stack) {
-		ItemMeta meta = Bukkit.getItemFactory().getItemMeta(stack.getType());
+		ItemMeta meta = stack.getItemMeta();
 		
 		if(meta instanceof Damageable) {
 			Damageable d = (Damageable) meta;
@@ -388,7 +388,7 @@ public class ItemUtils {
 		if (meta instanceof LeatherArmorMeta) {
 			LeatherArmorMeta lam = (LeatherArmorMeta) meta;
 			if (lam.getColor() != Bukkit.getItemFactory().getDefaultLeatherColor()) {
-				item_name.append("dyed ");
+				item_name.append(" dyed");
 			}
 		}
 

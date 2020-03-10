@@ -1,5 +1,6 @@
 package me.botsko.prism.commands;
 
+import me.botsko.prism.utils.MiscUtils;
 import me.botsko.prism.utils.TypeUtils;
 import me.botsko.prism.Prism;
 import me.botsko.prism.actionlibs.ActionMessage;
@@ -82,15 +83,16 @@ public class NearCommand implements SubHandler {
 				if (paginated != null) {
 					int result_count = results.getIndexOfFirstResult();
 					for (final Handler a : paginated) {
-						final ActionMessage am = new ActionMessage(a);
-						if (parameters.allowsNoRadius() || parameters.hasFlag(Flag.EXTENDED)
-								|| plugin.getConfig().getBoolean("prism.messenger.always-show-extended")) {
-							am.showExtended();
-						}
-						am.setResultIndex(result_count);
-						call.getPlayer().sendMessage(Prism.messenger.playerMsg(am.getMessage()));
-						result_count++;
-					}
+                        final ActionMessage am = new ActionMessage(a);
+                        if (parameters.hasFlag(Flag.EXTENDED)
+                                || plugin.getConfig().getBoolean("prism.messenger.always-show-extended")) {
+                            am.showExtended();
+                        }
+                        am.setResultIndex(result_count);
+                        MiscUtils.sendClickableTpRecord(am, call.getPlayer());
+                        result_count++;
+                    }
+					MiscUtils.sendPageButtons(results, call.getPlayer());
 
 					// Flush timed data
 					plugin.eventTimer.printTimeRecord();

@@ -66,10 +66,10 @@ public class RecordingTask implements Runnable {
                     return;
                 }
 				Prism.debug("Beginning batch insert from queue. " + System.currentTimeMillis());
-
 				// Handle dead connections
+				Connection conn = Prism.getPrismDataSource().getConnection();
                 try {
-                    if (Prism.getPrismDataSource().getConnection().isClosed() || Prism.getPrismDataSource().getConnection() == null) {
+                    if ((conn == null) || (conn.isClosed())) {
                         if (RecordingManager.failedDbConnectionCount == 0) {
                             Prism.log(
                                     "Prism database error. Connection should be there but it's not. Leaving actions to log in queue.");
@@ -81,10 +81,10 @@ public class RecordingTask implements Runnable {
                             scheduleNextRecording();
                         }
                         Prism.debug("Database connection still missing, incrementing count.");
+                        conn.close();
                         return;
-
-
                     } else {
+                        conn.close();
                         RecordingManager.failedDbConnectionCount = 0;
                     }
                 } catch (SQLException e) {
@@ -128,13 +128,15 @@ public class RecordingTask implements Runnable {
 				}
 				// The main delay is here
 				try {
-                    batchedQuery.processBatch();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                // Save the current count to the queue for short historical data
-                plugin.queueStats.addRunCount(actionsRecorded);
-            }
+					batchedQuery.processBatch();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				// Save the current count to the queue for short historical data
+				plugin.queueStats.addRunCount(actionsRecorded);
+				if (Prism.getInstance().monitoring) {
+				}
+			}
 	}
 
 	/**

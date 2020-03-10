@@ -24,10 +24,7 @@ import org.bukkit.block.CommandBlock;
 import org.bukkit.block.CreatureSpawner;
 import org.bukkit.block.Sign;
 import org.bukkit.block.Skull;
-import org.bukkit.block.data.Bisected;
-import org.bukkit.block.data.BlockData;
-import org.bukkit.block.data.Directional;
-import org.bukkit.block.data.Waterlogged;
+import org.bukkit.block.data.*;
 import org.bukkit.block.data.Bisected.Half;
 import org.bukkit.block.data.type.Bed;
 import org.bukkit.block.data.type.Bed.Part;
@@ -75,10 +72,15 @@ public class BlockAction extends GenericAction {
 			else if (state instanceof Skull) {
 				final SkullActionData skullActionData = new SkullActionData();
 				final Skull s = (Skull) state;
-				final Directional d = (Directional) state.getBlockData();
-				skullActionData.rotation = d.getFacing().name().toLowerCase();
+				if (state.getBlockData() instanceof Rotatable) {
+					final Rotatable r = (Rotatable) state.getBlockData();
+					skullActionData.rotation = r.getRotation().toString();
+				} else {
+					final Directional d = (Directional) state.getBlockData();
+					skullActionData.rotation = d.getFacing().name().toLowerCase();
+				}
 
-				if (state.getType() == Material.PLAYER_HEAD || state.getType() == Material.PLAYER_WALL_HEAD) {
+				if ((state.getType() == Material.PLAYER_HEAD || state.getType() == Material.PLAYER_WALL_HEAD) && (s.getOwningPlayer() != null)) {
 					skullActionData.owner = s.getOwningPlayer().getUniqueId().toString();
 				}
 
@@ -258,55 +260,53 @@ public class BlockAction extends GenericAction {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Override
-	public ChangeResult applyRollback(Player player, QueryParameters parameters, boolean is_preview) {
+	public ChangeResult applyRollback(Player player, QueryParameters parameters, boolean isPreview) {
 		final Block block = getWorld().getBlockAt(getLoc());
 		if (getActionType().doesCreateBlock()) {
-			return removeBlock(player, parameters, is_preview, block);
-		}
-		else {
-			return placeBlock(player, parameters, is_preview, block, false);
+			return removeBlock(player, parameters, isPreview, block);
+		} else {
+			return placeBlock(player, parameters, isPreview, block, false);
 		}
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Override
-	public ChangeResult applyRestore(Player player, QueryParameters parameters, boolean is_preview) {
+	public ChangeResult applyRestore(Player player, QueryParameters parameters, boolean isPreview) {
 		final Block block = getWorld().getBlockAt(getLoc());
 		if (getActionType().doesCreateBlock()) {
-			return placeBlock(player, parameters, is_preview, block, false);
-		}
-		else {
-			return removeBlock(player, parameters, is_preview, block);
+			return placeBlock(player, parameters, isPreview, block, false);
+		} else {
+			return removeBlock(player, parameters, isPreview, block);
 		}
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Override
-	public ChangeResult applyUndo(Player player, QueryParameters parameters, boolean is_preview) {
+	public ChangeResult applyUndo(Player player, QueryParameters parameters, boolean isPreview) {
 
 		final Block block = getWorld().getBlockAt(getLoc());
 
 		// Undo a drain/ext event (which always remove blocks)
 		// @todo if we ever track rollback/restore for undo, we'll
 		// need logic to do the opposite
-		return placeBlock(player, parameters, is_preview, block, false);
+		return placeBlock(player, parameters, isPreview, block, false);
 
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Override
-	public ChangeResult applyDeferred(Player player, QueryParameters parameters, boolean is_preview) {
+	public ChangeResult applyDeferred(Player player, QueryParameters parameters, boolean isPreview) {
 		final Block block = getWorld().getBlockAt(getLoc());
-		return placeBlock(player, parameters, is_preview, block, true);
+		return placeBlock(player, parameters, isPreview, block, true);
 	}
 
 	/**
@@ -389,11 +389,20 @@ public class BlockAction extends GenericAction {
 			if ((getMaterial() == Material.PLAYER_HEAD || getMaterial() == Material.PLAYER_WALL_HEAD)
 					&& blockActionData instanceof SkullActionData) {
 
+				block.setType(getMaterial());
+				state = block.getState();
 				final SkullActionData s = (SkullActionData) blockActionData;
 
-				// Set skull data
-				final Directional direction = (Directional) state.getBlockData();
-				direction.setFacing(s.getRotation());
+				if (state.getBlockData() instanceof Rotatable) {
+					final Rotatable r = (Rotatable) state.getBlockData();
+					r.setRotation(s.getRotation());
+					state.setBlockData(r);
+				} else {
+					final Directional d = (Directional) state.getBlockData();
+					d.setFacing(s.getRotation());
+					state.setBlockData(d);
+				}
+				state = block.getState();
 
 				if (!s.owner.isEmpty()) {
 					final Skull skull = (Skull) state;
