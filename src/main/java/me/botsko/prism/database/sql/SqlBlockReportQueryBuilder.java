@@ -1,8 +1,5 @@
 package me.botsko.prism.database.sql;
 
-import java.sql.*;
-import java.util.ArrayList;
-
 import me.botsko.prism.Prism;
 import me.botsko.prism.actionlibs.QueryParameters;
 import me.botsko.prism.database.BlockReportQuery;
@@ -14,20 +11,18 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.command.CommandSender;
 import org.bukkit.inventory.ItemStack;
 
-public class SQLBlockReportQueryBuilder extends SQLSelectQueryBuilder implements BlockReportQuery {
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
 
-    /**
-     *
-     */
-    public SQLBlockReportQueryBuilder(PrismDataSource dataSource) {
+public class SqlBlockReportQueryBuilder extends SqlSelectQueryBuilder implements BlockReportQuery {
+
+    public SqlBlockReportQueryBuilder(PrismDataSource dataSource) {
         super(dataSource);
     }
 
-    /**
-     * @param parameters
-     * @param shouldGroup
-     * @return
-     */
     @Override
     public String getQuery(QueryParameters parameters, boolean shouldGroup) {
 
@@ -47,27 +42,22 @@ public class SQLBlockReportQueryBuilder extends SQLSelectQueryBuilder implements
 
     }
 
-    /**
-     *
-     */
     @Override
     protected String select() {
         parameters.addActionType("block-place");
 
         // block-place query
-        String sql = "" + "SELECT block_id, SUM(placed) AS placed, SUM(broken) AS broken " + "FROM (("
-                + "SELECT block_id, COUNT(id) AS placed, 0 AS broken " + "FROM " + prefix + "data " + where() + " "
-                + "GROUP BY block_id) ";
-
+        StringBuilder sql = new StringBuilder();
+        sql.append("SELECT block_id, SUM(placed) AS placed, SUM(broken) AS broken ")
+                .append("FROM ((").append("SELECT block_id, COUNT(id) AS placed, 0 AS broken ").append("FROM ")
+                .append(prefix).append("data ").append(where()).append(" ").append("GROUP BY block_id) ");
         conditions.clear();
         parameters.getActionTypes().clear();
         parameters.addActionType("block-break");
-
-        sql += "UNION ( " + "SELECT block_id, 0 AS placed, count(id) AS broken " + "FROM " + prefix + "data " + where()
-                + " " + "GROUP BY block_id)) " + "AS PR_A "
-                + "GROUP BY block_id ORDER BY (SUM(placed) + SUM(broken)) DESC";
-
-        return sql;
+        sql.append("UNION ( " + "SELECT block_id, 0 AS placed, count(id) AS broken ").append("FROM ")
+                .append(prefix).append("data ").append(where()).append(" GROUP BY block_id)) ")
+                .append("AS PR_A ").append("GROUP BY block_id ORDER BY (SUM(placed) + SUM(broken)) DESC");
+        return sql.toString();
 
     }
 

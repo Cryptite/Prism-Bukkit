@@ -1,11 +1,5 @@
 package me.botsko.prism.database.sql;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-
 import me.botsko.prism.Prism;
 import me.botsko.prism.actionlibs.QueryParameters;
 import me.botsko.prism.database.ActionReportQuery;
@@ -14,20 +8,18 @@ import me.botsko.prism.utils.TypeUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
-public class SQLActionReportQueryBuilder extends SQLSelectQueryBuilder implements ActionReportQuery {
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
 
-    /**
-     *
-     **/
-    public SQLActionReportQueryBuilder(PrismDataSource dataSource) {
+public class SqlActionReportQueryBuilder extends SqlSelectQueryBuilder implements ActionReportQuery {
+
+    public SqlActionReportQueryBuilder(PrismDataSource dataSource) {
         super(dataSource);
     }
 
-    /**
-     * @param parameters
-     * @param shouldGroup
-     * @return
-     */
     @Override
     public String getQuery(QueryParameters parameters, boolean shouldGroup) {
 
@@ -48,16 +40,11 @@ public class SQLActionReportQueryBuilder extends SQLSelectQueryBuilder implement
 
     }
 
-    /**
-     *
-     */
     @Override
     public String select() {
-        final String sql = "SELECT COUNT(*), a.action " + "FROM " + prefix + "data " + "INNER JOIN " + prefix
+        return "SELECT COUNT(*), a.action " + "FROM " + prefix + "data " + "INNER JOIN " + prefix
                 + "actions a ON a.action_id = " + prefix + "data.action_id " + where() + " " + "GROUP BY a.action_id "
                 + "ORDER BY COUNT(*) DESC";
-
-        return sql;
 
     }
 

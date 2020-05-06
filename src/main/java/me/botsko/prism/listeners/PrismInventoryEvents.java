@@ -21,313 +21,319 @@ import java.util.Map.Entry;
 
 public class PrismInventoryEvents implements Listener {
 
-	/**
-	 * 
-	 */
-	private final Prism plugin;
+    private final boolean trackingInsert;
+    private final boolean trackingRemove;
+    private static final String INSERT = "item-insert";
+    private static final String REMOVE = "item-remove";
+    private final Prism plugin;
 
-	/**
-	 * 
-	 * @param plugin
-	 */
-	public PrismInventoryEvents(Prism plugin) {
-		this.plugin = plugin;
-	}
+    /**
+     * Constructor.
+     * @param plugin Prism
+     */
+    public PrismInventoryEvents(Prism plugin) {
+        this.plugin = plugin;
+        this.trackingInsert = plugin.getConfig().getBoolean("prism.tracking.item-insert");
+        this.trackingRemove = plugin.getConfig().getBoolean("prism.tracking.item-remove");
+    }
 
-	/**
-	 * 
-	 * @param event
-	 */
-	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-	public void onInventoryPickupItem(final InventoryPickupItemEvent event) {
+    /**
+     * InventoryPickupItemEvent.
+     * @param event InventoryPickupItemEvent
+     */
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onInventoryPickupItem(final InventoryPickupItemEvent event) {
 
-		if (!plugin.getConfig().getBoolean("prism.track-hopper-item-events"))
-			return;
+        if (!plugin.getConfig().getBoolean("prism.track-hopper-item-events")) {
+            return;
+        }
 
-		if (!Prism.getIgnore().event("item-pickup"))
-			return;
+        if (!Prism.getIgnore().event("item-pickup")) {
+            return;
+        }
 
-		// If hopper
-		if (event.getInventory().getType().equals(InventoryType.HOPPER)) {
-			RecordingQueue.addToQueue(ActionFactory.createItemStack("item-pickup", event.getItem().getItemStack(),
-					event.getItem().getItemStack().getAmount(), -1, null, event.getItem().getLocation(), "hopper"));
-		}
-	}
+        // If hopper
+        if (event.getInventory().getType().equals(InventoryType.HOPPER)) {
+            RecordingQueue.addToQueue(ActionFactory.createItemStack("item-pickup", event.getItem().getItemStack(),
+                    event.getItem().getItemStack().getAmount(), -1, null, event.getItem().getLocation(), "hopper"));
+        }
+    }
 
-	/**
-	 * Handle inventory transfers
-	 * 
-	 * @param event
-	 */
-	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-	public void onInventoryDrag(final InventoryDragEvent event) {
+    /**
+     * Handle inventory transfers.
+     *
+     * @param event InventoryDragEvent
+     */
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onInventoryDrag(final InventoryDragEvent event) {
+        if (!trackingInsert && !trackingRemove) {
+            return;
+        }
+        // Get container
+        final InventoryHolder ih = event.getInventory().getHolder();
 
-		if (!plugin.getConfig().getBoolean("prism.tracking.item-insert")
-				&& !plugin.getConfig().getBoolean("prism.tracking.item-remove"))
-			return;
+        // Store some info
+        final Player player = (Player) event.getWhoClicked();
 
-		// Get container
-		final InventoryHolder ih = event.getInventory().getHolder();
+        // Ignore all item move events where players modify their own inventory
+        if (ih instanceof Player) {
+            Player other = (Player) event.getInventory().getHolder();
 
-		// Store some info
-		final Player player = (Player) event.getWhoClicked();
+            if (event.getWhoClicked().equals(other)) {
+                return;
+            }
+        }
 
-		// Ignore all item move events where players modify their own inventory
-		if (ih instanceof Player) {
-			Player other = (Player) event.getInventory().getHolder();
+        Location containerLoc = event.getInventory().getLocation();
 
-			if (other.equals(event.getWhoClicked())) {
-				return;
-			}
-		}
+        if (containerLoc == null) {
+            return;
+        }
 
-		Location containerLoc = event.getInventory().getLocation();
+        final Map<Integer, ItemStack> newItems = event.getNewItems();
+        for (final Entry<Integer, ItemStack> entry : newItems.entrySet()) {
 
-		if (containerLoc == null) {
-			return;
-		}
+            int rawSlot = entry.getKey();
 
-		final Map<Integer, ItemStack> newItems = event.getNewItems();
-		for (final Entry<Integer, ItemStack> entry : newItems.entrySet()) {
+            // Top inventory
+            if (rawSlot < event.getInventory().getSize()) {
+                ItemStack stack = event.getView().getItem(rawSlot);
+                int slotViewAmount = (stack == null)
+                        ? 0 : stack.getAmount();
+                int amount = entry.getValue().getAmount() - slotViewAmount;
 
-			int rawSlot = entry.getKey();
+                RecordingQueue.addToQueue(ActionFactory.createItemStack("item-insert", entry.getValue(), amount,
+                        rawSlot, null, containerLoc, player));
+            }
+        }
+    }
 
-			// Top inventory
-			if (rawSlot < event.getInventory().getSize()) {
-				int amount = entry.getValue().getAmount() - event.getView().getItem(rawSlot).getAmount();
+    /**
+     * Handle inventory transfers.
+     *
+     * @param event InventoryClickEvent
+     */
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onInventoryClick(final InventoryClickEvent event) {
+        int slot = event.getRawSlot();
 
-				RecordingQueue.addToQueue(ActionFactory.createItemStack("item-insert", entry.getValue(), amount,
-						rawSlot, null, containerLoc, player));
-			}
-		}
-	}
+        // Specifically slot -999, or out of the window
+        if (slot < 0) {
+            return;
+        }
 
-	private static final String INSERT = "item-insert";
-	private static final String REMOVE = "item-remove";
+        Location containerLoc = event.getInventory().getLocation();
 
-	/**
-	 * Handle inventory transfers
-	 * 
-	 * @param event
-	 */
-	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-	public void onInventoryClick(final InventoryClickEvent event) {
-		int slot = event.getRawSlot();
+        // Virtual inventory or something (enderchest?)
+        if (containerLoc == null) {
+            return;
+        }
 
-		// Specifically slot -999, or out of the window
-		if (slot < 0) {
-			return;
-		}
+        if (!trackingInsert && !trackingRemove) {
+            return;
+        }
+        // Store some info
+        final Player player = (Player) event.getWhoClicked();
 
-		Location containerLoc = event.getInventory().getLocation();
+        // Ignore all item move events where players modify their own inventory
+        if (event.getInventory().getHolder() instanceof Player) {
+            Player other = (Player) event.getInventory().getHolder();
 
-		// Virtual inventory or something (enderchest?)
-		if (containerLoc == null) {
-			return;
-		}
+            if (other.equals(player)) {
+                return;
+            }
+        }
+        boolean isTopInv = slot < event.getInventory().getSize();
 
-		if (!plugin.getConfig().getBoolean("prism.tracking.item-insert")
-				&& !plugin.getConfig().getBoolean("prism.tracking.item-remove"))
-			return;
+        ItemStack heldItem = event.getCursor();
+        ItemStack slotItem = event.getCurrentItem();
 
-		// Store some info
-		final Player player = (Player) event.getWhoClicked();
+        // This happens when opening someone else's inventory, so don't bother tracking it
+        if (slotItem == null) {
+            return;
+        }
 
-		// Ignore all item move events where players modify their own inventory
-		if (event.getInventory().getHolder() instanceof Player) {
-			Player other = (Player) event.getInventory().getHolder();
+        switch (event.getClick()) {
+            // IGNORE BOTTOM
+            case LEFT:
+                if (isTopInv) {
+                    if (heldItem.getType() == Material.AIR) { //todo if the item under the cursor is null what to do?
+                        if (slotItem.getType() != Material.AIR) {
+                            RecordingQueue.addToQueue(ActionFactory.createItemStack(REMOVE, slotItem,
+                                    slotItem.getAmount(), slot, null, containerLoc, player));
+                        }
+                    } else {
+                        if (slotItem.getType() == Material.AIR || slotItem.equals(heldItem)) {
+                            int amount = Math.min(slotItem.getType().getMaxStackSize(),
+                                    slotItem.getAmount() + heldItem.getAmount()) - slotItem.getAmount();
 
-			if (other.equals(player)) {
-				return;
-			}
-		}
-		boolean isTopInv = slot < event.getInventory().getSize();
+                            if (amount > 0) {
+                                RecordingQueue.addToQueue(ActionFactory.createItemStack(INSERT, slotItem, amount, slot,
+                                        null, containerLoc, player));
+                            }
+                        }
+                    }
+                }
+                break;
 
-		ItemStack heldItem = event.getCursor();
-		ItemStack slotItem = event.getCurrentItem();
+            case RIGHT:
+                if (isTopInv) {
+                    if (heldItem.getType() == Material.AIR) {
+                        if (slotItem.getType() != Material.AIR) {
+                            RecordingQueue.addToQueue(ActionFactory.createItemStack(REMOVE, slotItem,
+                                    (slotItem.getAmount() + 1) / 2, slot, null, containerLoc, player));
+                        }
+                    } else {
+                        if ((slotItem.getType() == Material.AIR || slotItem.equals(heldItem))
+                                && slotItem.getAmount() < slotItem.getType().getMaxStackSize()) {
+                            RecordingQueue.addToQueue(ActionFactory.createItemStack(INSERT, slotItem, 1, slot, null,
+                                    containerLoc, player));
+                        }
+                    }
+                }
+                break;
 
-		switch (event.getClick()) {
-			// IGNORE BOTTOM
-			case LEFT:
-				if (isTopInv) {
-					if (heldItem.getType() == Material.AIR) {
-						if (slotItem.getType() != Material.AIR) {
-							RecordingQueue.addToQueue(ActionFactory.createItemStack(REMOVE, slotItem,
-									slotItem.getAmount(), slot, null, containerLoc, player));
-						}
-					}
-					else {
-						if (slotItem.getType() == Material.AIR || slotItem.equals(heldItem)) {
-							int amount = Math.min(slotItem.getType().getMaxStackSize(),
-									slotItem.getAmount() + heldItem.getAmount()) - slotItem.getAmount();
+            case NUMBER_KEY:
+                if (isTopInv) {
+                    ItemStack swapItem = player.getInventory().getItem(event.getHotbarButton());
 
-							if (amount > 0) {
-								RecordingQueue.addToQueue(ActionFactory.createItemStack(INSERT, slotItem, amount, slot,
-										null, containerLoc, player));
-							}
-						}
-					}
-				}
-				break;
+                    if (slotItem.getType() != Material.AIR) {
+                        RecordingQueue.addToQueue(ActionFactory.createItemStack(REMOVE, slotItem, slotItem.getAmount(),
+                                slot, null, containerLoc, player));
+                    }
 
-			case RIGHT:
-				if (isTopInv) {
-					if (heldItem.getType() == Material.AIR) {
-						if (slotItem.getType() != Material.AIR) {
-							RecordingQueue.addToQueue(ActionFactory.createItemStack(REMOVE, slotItem,
-									(slotItem.getAmount() + 1) / 2, slot, null, containerLoc, player));
-						}
-					}
-					else {
-						if ((slotItem.getType() == Material.AIR || slotItem.equals(heldItem))
-								&& slotItem.getAmount() < slotItem.getType().getMaxStackSize()) {
-							RecordingQueue.addToQueue(ActionFactory.createItemStack(INSERT, slotItem, 1, slot, null,
-									containerLoc, player));
-						}
-					}
-				}
-				break;
+                    if (swapItem != null && swapItem.getType() != Material.AIR) {
+                        RecordingQueue.addToQueue(ActionFactory.createItemStack(INSERT, swapItem, swapItem.getAmount(),
+                                slot, null, containerLoc, player));
+                    }
+                }
+                break;
 
-			case NUMBER_KEY:
-				if (isTopInv) {
-					ItemStack swapItem = player.getInventory().getItem(event.getHotbarButton());
+            // HALF 'N HALF
+            case DOUBLE_CLICK: {
+                int amount = heldItem.getType().getMaxStackSize() - heldItem.getAmount();
 
-					if (slotItem != null && slotItem.getType() != Material.AIR) {
-						RecordingQueue.addToQueue(ActionFactory.createItemStack(REMOVE, slotItem, slotItem.getAmount(),
-								slot, null, containerLoc, player));
-					}
+                ItemStack[] contents = event.getInventory().getStorageContents();
+                int length = contents.length;
 
-					if (swapItem != null && swapItem.getType() != Material.AIR) {
-						RecordingQueue.addToQueue(ActionFactory.createItemStack(INSERT, swapItem, swapItem.getAmount(),
-								slot, null, containerLoc, player));
-					}
-				}
-				break;
+                for (int i = 0; i < length; ++i) {
+                    ItemStack is = contents[i];
 
-			// HALF 'N HALF
-			case DOUBLE_CLICK: {
-				int amount = heldItem.getType().getMaxStackSize() - heldItem.getAmount();
+                    int size = 0;
+                    if (is != null && (is.getType() != Material.AIR || is.equals(heldItem))) {
+                        size += is.getAmount();
+                    }
 
-				ItemStack[] contents = event.getInventory().getStorageContents();
-				int length = contents.length;
+                    int transferred = Math.min(size, amount);
+                    amount -= transferred;
 
-				for (int i = 0; i < length; ++i) {
-					ItemStack is = contents[i];
+                    if (transferred > 0) {
+                        RecordingQueue.addToQueue(ActionFactory.createItemStack(REMOVE, heldItem, transferred, i, null,
+                                containerLoc, player));
+                    }
 
-					int size = 0;
-					if (is != null && (is.getType() != Material.AIR || is.equals(heldItem))) {
-						size += is.getAmount();
-					}
+                    if (amount <= 0) {
+                        break;
+                    }
+                }
+                break;
+            }
 
-					int transferred = Math.min(size, amount);
-					amount -= transferred;
+            // CROSS INVENTORY EVENTS
+            case SHIFT_LEFT:
+            case SHIFT_RIGHT:
+                if (isTopInv) {
+                    if (slotItem.getType() != Material.AIR) {
+                        int stackSize = slotItem.getType().getMaxStackSize();
+                        int remaining = slotItem.getAmount();
 
-					if (transferred > 0) {
-						RecordingQueue.addToQueue(ActionFactory.createItemStack(REMOVE, heldItem, transferred, i, null,
-								containerLoc, player));
-					}
+                        for (ItemStack is : event.getView().getBottomInventory().getStorageContents()) {
+                            if (is.getType() == Material.AIR) {
+                                remaining -= stackSize;
+                            } else if (is.isSimilar(slotItem)) {
+                                remaining -= (stackSize - Math.min(is.getAmount(), stackSize));
+                            }
 
-					if (amount <= 0)
-						break;
-				}
-				break;
-			}
+                            if (remaining <= 0) {
+                                remaining = 0;
+                                break;
+                            }
+                        }
 
-			// CROSS INVENTORY EVENTS
-			case SHIFT_LEFT:
-			case SHIFT_RIGHT:
-				if (isTopInv) {
-					if (slotItem.getType() != Material.AIR) {
-						int stackSize = slotItem.getType().getMaxStackSize();
-						int remaining = slotItem.getAmount();
+                        RecordingQueue.addToQueue(ActionFactory.createItemStack(REMOVE, slotItem,
+                                slotItem.getAmount() - remaining, slot, null, containerLoc, player));
+                    }
+                } else {
+                    int stackSize = slotItem.getType().getMaxStackSize();
+                    int amount = slotItem.getAmount();
 
-						for (ItemStack is : event.getView().getBottomInventory().getStorageContents()) {
-							if (is == null || is.getType() == Material.AIR) {
-								remaining -= stackSize;
-							}
-							else if (is.isSimilar(slotItem)) {
-								remaining -= (stackSize - Math.min(is.getAmount(), stackSize));
-							}
+                    ItemStack[] contents = event.getInventory().getStorageContents();
+                    int length = contents.length;
 
-							if (remaining <= 0) {
-								remaining = 0;
-								break;
-							}
-						}
+                    // Fill item stacks first
+                    for (int i = 0; i < length; ++i) {
+                        ItemStack is = contents[i];
 
-						RecordingQueue.addToQueue(ActionFactory.createItemStack(REMOVE, slotItem,
-								slotItem.getAmount() - remaining, slot, null, containerLoc, player));
-					}
-				}
-				else {
-					int stackSize = slotItem.getType().getMaxStackSize();
-					int amount = slotItem.getAmount();
+                        if (slotItem.isSimilar(is)) {
+                            int transferred = Math.min(stackSize - is.getAmount(), amount);
+                            amount -= transferred;
 
-					ItemStack[] contents = event.getInventory().getStorageContents();
-					int length = contents.length;
+                            if (transferred > 0) {
+                                RecordingQueue.addToQueue(ActionFactory.createItemStack(INSERT, slotItem, transferred,
+                                        i, null, containerLoc, player));
+                            }
 
-					// Fill item stacks first
-					for (int i = 0; i < length; ++i) {
-						ItemStack is = contents[i];
+                            if (amount <= 0) {
+                                break;
+                            }
+                        }
+                    }
 
-						if (slotItem.isSimilar(is)) {
-							int transferred = Math.min(stackSize - is.getAmount(), amount);
-							amount -= transferred;
+                    // Fill empty slots
+                    if (amount > 0) {
+                        for (int i = 0; i < length; ++i) {
+                            ItemStack is = contents[i];
 
-							if (transferred > 0) {
-								RecordingQueue.addToQueue(ActionFactory.createItemStack(INSERT, slotItem, transferred,
-										i, null, containerLoc, player));
-							}
+                            if (is == null || is.getType() == Material.AIR) {
+                                int transferred = Math.min(stackSize, amount);
+                                amount -= transferred;
 
-							if (amount <= 0)
-								break;
-						}
-					}
+                                if (transferred > 0) {
+                                    RecordingQueue.addToQueue(ActionFactory.createItemStack(INSERT, slotItem,
+                                            transferred, i, null, containerLoc, player));
+                                }
 
-					// Fill empty slots
-					if (amount > 0) {
-						for (int i = 0; i < length; ++i) {
-							ItemStack is = contents[i];
+                                if (amount <= 0) {
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                break;
 
-							if (is == null || is.getType() == Material.AIR) {
-								int transferred = Math.min(stackSize, amount);
-								amount -= transferred;
+            // DROPS
+            case DROP:
+                if (slotItem.getType() != Material.AIR && slotItem.getAmount() > 0) {
+                    RecordingQueue.addToQueue(
+                            ActionFactory.createItemStack(REMOVE, slotItem, 1, slot, null, containerLoc, player));
+                }
+                break;
 
-								if (transferred > 0) {
-									RecordingQueue.addToQueue(ActionFactory.createItemStack(INSERT, slotItem,
-											transferred, i, null, containerLoc, player));
-								}
+            case CONTROL_DROP:
+                if (slotItem.getType() != Material.AIR && slotItem.getAmount() > 0) {
+                    RecordingQueue.addToQueue(ActionFactory.createItemStack(REMOVE, slotItem, slotItem.getAmount(),
+                            slot, null, containerLoc, player));
+                }
+                break;
 
-								if (amount <= 0)
-									break;
-							}
-						}
-					}
-				}
-				break;
+            case WINDOW_BORDER_LEFT:
+                // Drop stack on cursor
+            case WINDOW_BORDER_RIGHT:
+                // Drop 1 on cursor
 
-			// DROPS
-			case DROP:
-				if (slotItem.getType() != Material.AIR && slotItem.getAmount() > 0) {
-					RecordingQueue.addToQueue(
-							ActionFactory.createItemStack(REMOVE, slotItem, 1, slot, null, containerLoc, player));
-				}
-				break;
-
-			case CONTROL_DROP:
-				if (slotItem.getType() != Material.AIR && slotItem.getAmount() > 0) {
-					RecordingQueue.addToQueue(ActionFactory.createItemStack(REMOVE, slotItem, slotItem.getAmount(),
-							slot, null, containerLoc, player));
-				}
-				break;
-
-			case WINDOW_BORDER_LEFT:
-				// Drop stack on cursor
-			case WINDOW_BORDER_RIGHT:
-				// Drop 1 on cursor
-
-			default:
-				// What the hell did you do
-		}
-	}
+            default:
+                // What the hell did you do
+        }
+    }
 }

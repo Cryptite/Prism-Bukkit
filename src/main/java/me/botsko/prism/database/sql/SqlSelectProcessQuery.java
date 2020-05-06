@@ -8,20 +8,24 @@ import me.botsko.prism.database.SelectProcessActionQuery;
 import me.botsko.prism.measurement.TimeTaken;
 import org.bukkit.Bukkit;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.UUID;
 
 /**
  * Created for use for the Add5tar MC Minecraft server
  * Created by benjamincharlton on 6/04/2019.
  */
-public class SQLSelectProcessQuery extends SQLSelectQueryBuilder implements SelectProcessActionQuery {
+public class SqlSelectProcessQuery extends SqlSelectQueryBuilder implements SelectProcessActionQuery {
     private boolean getLastID;
 
     /**
-     * @param dataSource
+     * Constructor.
+     * @param dataSource PrismDataSource
      */
-    public SQLSelectProcessQuery(PrismDataSource dataSource) {
+    public SqlSelectProcessQuery(PrismDataSource dataSource) {
         super(dataSource);
     }
 
@@ -36,9 +40,8 @@ public class SQLSelectProcessQuery extends SQLSelectQueryBuilder implements Sele
 
     protected String select() {
         if (getLastID) {
-            String sql = "SELECT id FROM " + prefix + "data JOIN " + prefix + "players p ON p.player_id = " + prefix
+            return "SELECT id FROM " + prefix + "data JOIN " + prefix + "players p ON p.player_id = " + prefix
                     + "data.player_id";
-            return sql;
         }
         String sql = "SELECT id, action, epoch, world, player, player_uuid, x, y, z, data FROM " + prefix
                 + "data d";
@@ -54,8 +57,7 @@ public class SQLSelectProcessQuery extends SQLSelectQueryBuilder implements Sele
             //bit hacky here we are using the id parameter which should generally refer to a player.
             final int action_id = Prism.prismActions.get("prism-process");
             String playerName = parameters.getKeyword();
-            String sql = "WHERE action_id = " + action_id + " AND p.player = " + playerName;
-            return sql;
+            return "WHERE action_id = " + action_id + " AND p.player = " + playerName;
         }
         //bit hacky here we are using the id parameter which should generally refer to a player.
         final long id = parameters.getId();
@@ -78,8 +80,9 @@ public class SQLSelectProcessQuery extends SQLSelectQueryBuilder implements Sele
 
     @Override
     protected String limit() {
-        if (getLastID)
+        if (getLastID) {
             return " LIMIT 1";
+        }
         return " ";
     }
 
@@ -90,7 +93,9 @@ public class SQLSelectProcessQuery extends SQLSelectQueryBuilder implements Sele
 
     @Override
     public PrismProcessAction executeProcessQuery() {
-        if (getLastID) return null;
+        if (getLastID) {
+            return null;
+        }
         final String query = getQuery(parameters, false);
         PrismProcessAction process = null;
         try (
@@ -106,7 +111,7 @@ public class SQLSelectProcessQuery extends SQLSelectQueryBuilder implements Sele
                 process.setUnixEpoch(rs.getLong("epoch"));
                 process.setWorld(Bukkit.getWorld(rs.getString("world")));
                 process.setSourceName(rs.getString("player"));
-                process.setUUID(UUID.fromString(rs.getString("player_uuid")));
+                process.setUuid(UUID.fromString(rs.getString("player_uuid")));
                 process.setX(rs.getInt("x"));
                 process.setY(rs.getInt("y"));
                 process.setZ(rs.getInt("z"));

@@ -4,11 +4,11 @@ package me.botsko.prism.database;
  * Created for use for the Add5tar MC Minecraft server
  * Created by benjamincharlton on 5/04/2019.
  */
-public interface SelectIDQuery extends SelectQuery {
+public interface SelectIdQuery extends SelectQuery {
 
-     void setMax();
+    void setMax();
 
-     void setMin();
+    void setMin();
 
-     long execute();
+    long execute();
 }

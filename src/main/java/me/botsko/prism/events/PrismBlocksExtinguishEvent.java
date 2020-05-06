@@ -9,75 +9,55 @@ import java.util.ArrayList;
 
 public class PrismBlocksExtinguishEvent extends Event {
 
-	/**
-	 * Required by bukkit for proper event handling.
-	 */
-	private static final HandlerList handlers = new HandlerList();
+    private static final HandlerList handlers = new HandlerList();
 
-	/**
-	 * 
-	 */
-	private final ArrayList<BlockStateChange> blockStateChanges;
+    protected final int radius;
 
-	/**
-	 * 
-	 */
-	private final Player onBehalfOf;
+    private final ArrayList<BlockStateChange> blockStateChanges;
 
-	/**
-	 * 
-	 */
-	protected final int radius;
+    private final Player onBehalfOf;
 
-	/**
-	 * 
-	 * @param blockStateChanges
-	 * @param onBehalfOf
-	 * @param radius
-	 */
-	public PrismBlocksExtinguishEvent(ArrayList<BlockStateChange> blockStateChanges, Player onBehalfOf, int radius) {
-		this.blockStateChanges = blockStateChanges;
-		this.onBehalfOf = onBehalfOf;
-		this.radius = radius;
-	}
+    /**
+     * Constructor.
+     *
+     * @param blockStateChanges List
+     * @param onBehalfOf        Player
+     * @param radius            int
+     */
+    public PrismBlocksExtinguishEvent(ArrayList<BlockStateChange> blockStateChanges, Player onBehalfOf, int radius) {
+        this.blockStateChanges = blockStateChanges;
+        this.onBehalfOf = onBehalfOf;
+        this.radius = radius;
+    }
 
-	/**
-	 * @return the originalBlock
-	 */
-	public ArrayList<BlockStateChange> getBlockStateChanges() {
-		return blockStateChanges;
-	}
 
-	/**
-	 * @return the onBehalfOf
-	 */
-	public Player onBehalfOf() {
-		return onBehalfOf;
-	}
+    public ArrayList<BlockStateChange> getBlockStateChanges() {
+        return blockStateChanges;
+    }
 
-	/**
-	 * 
-	 * @return
-	 */
-	public int getRadius() {
-		return radius;
-	}
+    public Player onBehalfOf() {
+        return onBehalfOf;
+    }
 
-	/**
-	 * Required by bukkit for proper event handling.
-	 */
-	@NotNull
-	@Override
-	public HandlerList getHandlers() {
-		return handlers;
-	}
+    public int getRadius() {
+        return radius;
+    }
 
-	/**
-	 * Required by bukkit for proper event handling.
-	 * 
-	 * @return
-	 */
-	public static HandlerList getHandlerList() {
-		return handlers;
-	}
+    /**
+     * Required by bukkit for proper event handling.
+     */
+    @NotNull
+    @Override
+    public HandlerList getHandlers() {
+        return handlers;
+    }
+
+    /**
+     * Required by bukkit for proper event handling.
+     */
+    @SuppressWarnings("unused")
+    public static HandlerList getHandlerList() {
+        return handlers;
+
+    }
 }

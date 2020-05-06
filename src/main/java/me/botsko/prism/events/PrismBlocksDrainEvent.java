@@ -9,75 +9,47 @@ import java.util.ArrayList;
 
 public class PrismBlocksDrainEvent extends Event {
 
-	/**
-	 * Required by bukkit for proper event handling.
-	 */
-	private static final HandlerList handlers = new HandlerList();
+    private static final HandlerList handlers = new HandlerList();
+    protected final int radius;
+    private final ArrayList<BlockStateChange> blockStateChanges;
+    private final Player onBehalfOf;
 
-	/**
-	 * 
-	 */
-	private final ArrayList<BlockStateChange> blockStateChanges;
+    /**
+     * Constructor.
+     * @param blockStateChanges ArrayList
+     * @param onBehalfOf Player
+     * @param radius int
+     */
+    public PrismBlocksDrainEvent(ArrayList<BlockStateChange> blockStateChanges, Player onBehalfOf, int radius) {
+        this.blockStateChanges = blockStateChanges;
+        this.onBehalfOf = onBehalfOf;
+        this.radius = radius;
+    }
 
-	/**
-	 * 
-	 */
-	private final Player onBehalfOf;
+    public ArrayList<BlockStateChange> getBlockStateChanges() {
+        return blockStateChanges;
+    }
 
-	/**
-	 * 
-	 */
-	protected final int radius;
+    public Player onBehalfOf() {
+        return onBehalfOf;
+    }
 
-	/**
-	 * 
-	 * @param blockStateChanges
-	 * @param onBehalfOf
-	 * @param radius
-	 */
-	public PrismBlocksDrainEvent(ArrayList<BlockStateChange> blockStateChanges, Player onBehalfOf, int radius) {
-		this.blockStateChanges = blockStateChanges;
-		this.onBehalfOf = onBehalfOf;
-		this.radius = radius;
-	}
+    public int getRadius() {
+        return radius;
+    }
 
-	/**
-	 * @return the originalBlock
-	 */
-	public ArrayList<BlockStateChange> getBlockStateChanges() {
-		return blockStateChanges;
-	}
+    @NotNull
+    @Override
+    public HandlerList getHandlers() {
+        return handlers;
+    }
 
-	/**
-	 * @return the onBehalfOf
-	 */
-	public Player onBehalfOf() {
-		return onBehalfOf;
-	}
+    /**
+     * Required by bukkit for proper event handling.
+     */
+    @SuppressWarnings("unused")
+    public static HandlerList getHandlerList() {
+        return handlers;
 
-	/**
-	 * 
-	 * @return
-	 */
-	public int getRadius() {
-		return radius;
-	}
-
-	/**
-	 * Required by bukkit for proper event handling.
-	 */
-	@NotNull
-	@Override
-	public HandlerList getHandlers() {
-		return handlers;
-	}
-
-	/**
-	 * Required by bukkit for proper event handling.
-	 * 
-	 * @return
-	 */
-	public static HandlerList getHandlerList() {
-		return handlers;
-	}
+    }
 }
