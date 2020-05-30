@@ -23,7 +23,7 @@ public class PrismDatabaseFactory {
         ConfigurationSection mysql;
         if (configuration.contains("prism.mysql")) {
             mysql = configuration.getConfigurationSection("prism.mysql");
-            if(mysql == null){
+            if (mysql == null) {
                 mysql = configuration.createSection("prism.mysql");
             }
         } else {
@@ -34,12 +34,8 @@ public class PrismDatabaseFactory {
     }
 
     private static void addDatabaseDefaults(ConfigurationSection section) {
-        section.addDefault("database.max-pool-connections", 20);
-        section.addDefault("database.min-idle-connections", 5);
-        section.addDefault("database.max-wait", 30000);
         section.addDefault("database.max-failures-before-wait", 5);
         section.addDefault("database.actions-per-insert-batch", 300);
-        // queue
         section.addDefault("database.force-write-queue-on-shutdown", true);
     }
 
