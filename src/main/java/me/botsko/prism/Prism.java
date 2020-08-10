@@ -42,10 +42,13 @@ import me.botsko.prism.players.PlayerIdentification;
 import me.botsko.prism.players.PrismPlayer;
 import me.botsko.prism.purge.PurgeManager;
 import me.botsko.prism.utils.MaterialAliases;
+import me.botsko.prism.utils.TypeUtils;
 import me.botsko.prism.wands.Wand;
+import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -58,9 +61,12 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 
+import java.io.File;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -71,14 +77,20 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.FileHandler;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.LogRecord;
 import java.util.function.Function;
 import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 import java.util.stream.Collectors;
 
 public class Prism extends JavaPlugin {
 
-    private static final HashMap<String, String> alertedOres = new HashMap<>();
+    private static final HashMap<Material, ChatColor> alertedOres = new HashMap<>();
     private static final Logger log = Logger.getLogger("Minecraft");
+    private static Logger prismLog;
     private static final HashMap<String, PrismParameterHandler> paramHandlers = new HashMap<>();
     public static Messenger messenger;
     public static FileConfiguration config;
@@ -96,6 +108,7 @@ public class Prism extends JavaPlugin {
     private static HandlerRegistry handlerRegistry;
     private static Ignore ignore;
     private static Prism instance;
+    private static boolean debug = false;
     private final ScheduledThreadPoolExecutor schedulePool = new ScheduledThreadPoolExecutor(1);
     private final ScheduledExecutorService recordingMonitorTask = new ScheduledThreadPoolExecutor(1);
     public boolean monitoring = false;
@@ -110,6 +123,7 @@ public class Prism extends JavaPlugin {
     public BukkitTask recordingTask;
     public int totalRecordsAffected = 0;
     public long maxCycleTime = 0;
+    private static BukkitTask debugWatcher;
     /**
      * We store a basic index of hanging entities we anticipate will fall, so that
      * when they do fall we can attribute them to the player who broke the original
@@ -130,6 +144,37 @@ public class Prism extends JavaPlugin {
         instance = this;
     }
 
+    protected Prism(JavaPluginLoader loader, PluginDescriptionFile description, File dataFolder, File file) {
+        super(loader, description, dataFolder, file);
+    }
+
+    /**
+     * Set the debug state.
+     *
+     * @param debug bool.
+     */
+    public static void setDebug(boolean debug) {
+        Prism.debug = debug;
+        if (debug && (debugWatcher == null || debugWatcher.isCancelled())) {
+            debugWatcher = Bukkit.getScheduler().runTaskTimerAsynchronously(Prism.getInstance(), () -> {
+                for (Player p : Bukkit.getOnlinePlayers()) {
+                    if (p.hasPermission("prism.debug")) {
+                        p.sendMessage("ALERT : Prism has debug mode enabled - "
+                                + " LOGS will rapidly grow!!!");
+                    }
+                }
+            }, 500, 4000);
+        } else {
+            if (debugWatcher != null) {
+                debugWatcher.cancel();
+            }
+        }
+    }
+
+    public static boolean isDebug() {
+        return debug;
+    }
+
     public static PrismDataSource getPrismDataSource() {
         return prismDataSource;
     }
@@ -143,7 +188,6 @@ public class Prism extends JavaPlugin {
      *
      * @return String
      */
-    @SuppressWarnings("WeakerAccess")
     public static String getPrismName() {
         return pluginName;
     }
@@ -171,7 +215,7 @@ public class Prism extends JavaPlugin {
      *
      * @return list
      */
-    public static HashMap<String, String> getAlertedOres() {
+    public static HashMap<Material, ChatColor> getAlertedOres() {
         return alertedOres;
     }
 
@@ -249,6 +293,7 @@ public class Prism extends JavaPlugin {
      */
     public static void log(String message) {
         log.info("[" + getPrismName() + "] " + message);
+        prismLog.info(message);
     }
 
     /**
@@ -258,6 +303,12 @@ public class Prism extends JavaPlugin {
      */
     public static void warn(String message) {
         log.warning("[" + getPrismName() + "] " + message);
+        prismLog.warning(message);
+    }
+
+    public static void warn(String message, Exception e) {
+        log.log(Level.WARNING,"[" + getPrismName() + "] " + message,e);
+        prismLog.log(Level.WARNING,"[" + getPrismName() + "] " + message,e);
     }
 
     /**
@@ -281,8 +332,8 @@ public class Prism extends JavaPlugin {
      * @param message String
      */
     public static void debug(String message) {
-        if (config == null || config.getBoolean("prism.debug")) {
-            log.info("[" + pluginName + " Debug ]: " + message);
+        if (debug) {
+            log("- Debug - " + message);
         }
     }
 
@@ -308,9 +359,11 @@ public class Prism extends JavaPlugin {
      */
     @Override
     public void onEnable() {
-
+        debug = getConfig().getBoolean("prism.debug", false);
+        prismLog = createPrismLogger();
         pluginName = this.getDescription().getName();
         pluginVersion = this.getDescription().getVersion();
+        messenger = new Messenger(pluginName);
         log("Initializing Prism " + pluginVersion + ". Originally by Viveleroi; maintained by the AddstarMC Network");
         loadConfig();        // Load configuration, or install if new
         if (!getConfig().getBoolean("prism.suppress-paper-message", false)) {
@@ -336,9 +389,10 @@ public class Prism extends JavaPlugin {
         // init db async then call back to complete enable.
         final BukkitTask updating = Bukkit.getScheduler().runTaskTimerAsynchronously(instance, () -> {
             if (!isEnabled()) {
-                warn("Prism is loading and updating the database logging is NOT enabled");
+                warn("Prism is loading and updating the database; logging is NOT enabled");
+
             }
-        },100,200);
+        }, 100, 200);
 
         Bukkit.getScheduler().runTaskAsynchronously(instance, () -> {
             prismDataSource = PrismDatabaseFactory.createDataSource(config);
@@ -347,7 +401,7 @@ public class Prism extends JavaPlugin {
                 testConnection = prismDataSource.getConnection();
                 if (testConnection == null) {
                     notifyDisabled();
-                    Bukkit.getScheduler().runTask(instance, () -> instance.onDisable());
+                    Bukkit.getScheduler().runTask(instance, () -> instance.enableFailedDatabase());
                     updating.cancel();
                     return;
                 }
@@ -358,7 +412,7 @@ public class Prism extends JavaPlugin {
                 }
             } else {
                 notifyDisabled();
-                Bukkit.getScheduler().runTask(instance, () -> instance.onDisable());
+                Bukkit.getScheduler().runTask(instance, () -> instance.enableFailedDatabase());
                 updating.cancel();
                 return;
             }
@@ -388,12 +442,44 @@ public class Prism extends JavaPlugin {
         });
     }
 
+    private Logger createPrismLogger() {
+        Logger result = Logger.getLogger("PrismLogger");
+        result.setUseParentHandlers(false);
+        for (Handler handler :result.getHandlers()) {
+            result.removeHandler(handler);
+        }
+        try {
+            File prismFileLog = getDataFolder().toPath().resolve("prism.log").toFile();
+            FileHandler handler = new PrismFileHandler(prismFileLog);
+            result.addHandler(handler);
+            result.setLevel(Level.CONFIG);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
     private void notifyDisabled() {
         final String[] dbDisabled = new String[3];
-        dbDisabled[0] = "Prism will disable itself because it couldn't connect to a database.";
+        dbDisabled[0] = "Prism will disable most commands because it couldn't connect to a database.";
         dbDisabled[1] = "If you're using MySQL, check your config. Be sure MySQL is running.";
         dbDisabled[2] = "For help - try our Discord Channel or the Wiki on Github.";
         logSection(dbDisabled);
+
+    }
+
+    private void enableFailedDatabase() {
+        if (isEnabled()) {
+            PluginCommand command = getCommand("prism");
+            if (command != null) {
+                PrismCommands commands = new PrismCommands(this,true);
+                command.setExecutor(commands);
+                command.setTabCompleter(commands);
+            } else {
+                warn("Command Executor Error: Check plugin.yml");
+                Bukkit.getPluginManager().disablePlugin(instance);
+            }
+        }
     }
 
     private void enabled() {
@@ -427,7 +513,7 @@ public class Prism extends JavaPlugin {
             // Add commands
             PluginCommand command = getCommand("prism");
             if (command != null) {
-                PrismCommands commands = new PrismCommands(this);
+                PrismCommands commands = new PrismCommands(this,false);
                 command.setExecutor(commands);
                 command.setTabCompleter(commands);
             } else {
@@ -455,7 +541,6 @@ public class Prism extends JavaPlugin {
             registerParameter(new WorldParameter());
 
             // Init re-used classes
-            messenger = new Messenger(pluginName);
             oreMonitor = new OreMonitor(instance);
             useMonitor = new UseMonitor(instance);
 
@@ -522,7 +607,15 @@ public class Prism extends JavaPlugin {
         alertedOres.clear();
         if (alertBlocks != null) {
             for (final String key : alertBlocks.getKeys(false)) {
-                alertedOres.put(key.toUpperCase(), alertBlocks.getString(key));
+                Material m = Material.matchMaterial(key.toUpperCase());
+                String colorString = alertBlocks.getString(key);
+
+                if (m == null || colorString == null) {
+                    Prism.log("Could not match alert block:" + key + " color:" + colorString);
+                    continue;
+                }
+                ChatColor color = TypeUtils.from(colorString);
+                alertedOres.put(m, color);
             }
         }
         items = new MaterialAliases();
@@ -566,7 +659,6 @@ public class Prism extends JavaPlugin {
     /**
      * Clears the Query Cache.
      */
-    @SuppressWarnings("WeakerAccess")
     public void endExpiredQueryCaches() {
         getServer().getScheduler().scheduleSyncRepeatingTask(this, () -> {
             final java.util.Date date = new java.util.Date();
@@ -606,7 +698,6 @@ public class Prism extends JavaPlugin {
     /**
      * Remove expired locations.
      */
-    @SuppressWarnings("WeakerAccess")
     public void removeExpiredLocations() {
         getServer().getScheduler().scheduleSyncRepeatingTask(this, () -> {
             final java.util.Date date = new java.util.Date();
@@ -655,11 +746,16 @@ public class Prism extends JavaPlugin {
      *
      * @param msg String
      */
-    public void alertPlayers(Player player, String msg) {
+    public void alertPlayers(Player player, List<BaseComponent> msg) {
         for (final Player p : getServer().getOnlinePlayers()) {
             if (!p.equals(player) || getConfig().getBoolean("prism.alerts.alert-player-about-self")) {
                 if (p.hasPermission("prism.alerts")) {
-                    p.sendMessage(messenger.playerMsg(ChatColor.RED + "[!] " + msg));
+                    List<BaseComponent> finalMessage = new ArrayList<>();
+                    TextComponent prefix = new TextComponent("[!]");
+                    prefix.setColor(net.md_5.bungee.api.ChatColor.RED);
+                    finalMessage.add(prefix);
+                    finalMessage.addAll(msg);
+                    p.spigot().sendMessage(finalMessage.toArray(new BaseComponent[0]));
                 }
             }
         }
@@ -706,6 +802,46 @@ public class Prism extends JavaPlugin {
             prismDataSource.dispose();
         }
         log("Closing plugin.");
+        for (Handler handler : prismLog.getHandlers()) {
+            handler.close();
+        }
         super.onDisable();
+    }
+
+    private static class PrismFileHandler extends FileHandler {
+
+        public PrismFileHandler(File file) throws IOException, SecurityException {
+            super(file.toString());
+            setFormatter(new SimpleFormatter() {
+                @Override
+                public synchronized String format(LogRecord lr) {
+                    boolean mt = Bukkit.isPrimaryThread();
+                    String thread;
+                    if (mt) {
+                        thread = "[M]";
+                    } else {
+                        thread = "[" + lr.getThreadID() + "]";
+                    }
+                    String thrown;
+                    if (lr.getThrown() == null) {
+                        thrown = "";
+                    } else {
+                        thrown = lr.getThrown().toString();
+                    }
+                    return String.format("[%1$tF %1$tT] [%2$-7s] " + thread + " %3$s%4$s%n",
+                            new Date(lr.getMillis()),
+                            lr.getLevel().getLocalizedName(),
+                            lr.getMessage(),
+                            thrown
+                    );
+                }
+            });
+        }
+
+        @Override
+        public synchronized void publish(LogRecord record) {
+            super.publish(record);
+            flush();
+        }
     }
 }

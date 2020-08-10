@@ -50,13 +50,17 @@
 		<plugin.version>${project.version}-${build.number}</plugin.version>
 		<build.number />
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<spigot.api.version>1.15</spigot.api.version>
+		<spigot.api.version>1.16</spigot.api.version>
+		<test.mysql.host>localhost</test.mysql.host>
+		<test.mysql.user>prism</test.mysql.user>
+		<test.mysql.password>prism</test.mysql.password>
+		<test.mysql.database>prism</test.mysql.database>
 	</properties>
 	<dependencies>
 		<dependency>
-			<groupId>com.destroystokyo.paper</groupId>
-			<artifactId>paper-api</artifactId>
-			<version>${spigot.api.version}-R0.1-SNAPSHOT</version>
+			<groupId>org.spigotmc</groupId>
+			<artifactId>spigot-api</artifactId>
+			<version>1.16.1-R0.1-SNAPSHOT</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
@@ -208,6 +212,11 @@
 				<exclude>**/*.yml</exclude>
 			</excludes>
 		</resource>
+		<resource>
+			<directory>src/test/resources/testServer</directory>
+			<filtering>true</filtering>
+			<targetPath>../testServer/</targetPath>
+		</resource>
 	</resources>
 	<plugins>
 		<plugin>
@@ -291,6 +300,32 @@
 			</configuration>
 		</plugin>
 	</plugins>
-	</build>
 
+	</build>
+	<profiles>
+		<profile>
+			<id>SPIGOT</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<dependencies>
+				<dependency>
+					<groupId>org.spigotmc</groupId>
+					<artifactId>spigot-api</artifactId>
+					<version>1.16.1-R0.1-SNAPSHOT</version>
+					<scope>provided</scope>
+				</dependency>
+			</dependencies>
+		</profile>
+		<profile>
+			<id>PAPER</id>
+			<dependencies>
+				<dependency>
+					<groupId>com.destroystokyo.paper</groupId>
+					<artifactId>paper-api</artifactId>
+					<version>1.16.1-R0.1-SNAPSHOT</version>
+				</dependency>
+			</dependencies>
+		</profile>
+	</profiles>
 </project>
