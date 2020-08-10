@@ -5,7 +5,9 @@ import io.papermc.lib.PaperLib;
 import me.botsko.prism.Prism;
 import me.botsko.prism.actionlibs.ActionMessage;
 import me.botsko.prism.actionlibs.QueryResult;
+import me.botsko.prism.actions.Handler;
 import me.botsko.prism.appliers.PrismProcessType;
+import me.botsko.prism.utils.block.Utilities;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
@@ -163,7 +165,7 @@ public class MiscUtils {
         if (isPaper || isSpigot) {
             String[] message = Prism.messenger.playerMsg(a.getMessage());
             //line 1 holds the index so we set that as the highlighted for command click
-            final Collection<BaseComponent> toSend = new ArrayList<>();
+            final List<BaseComponent> toSend = new ArrayList<>();
             int i = 0;
             for (String m : message) {
                 BaseComponent[] text = TextComponent.fromLegacyText(
@@ -177,6 +179,15 @@ public class MiscUtils {
                                         + a.getIndex()));
                         toSend.add(baseComponent);
                     });
+
+                    TextComponent spawnItem = new TextComponent("<S> ");
+                    spawnItem.setBold(true);
+                    spawnItem.setColor(ChatColor.AQUA);
+
+                    Handler handler = a.getHandler();
+                    spawnItem.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponent[]{new TextComponent("Click to spawn")}));
+                    spawnItem.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/giveitem prid " + handler.getId()));
+                    toSend.add(2, spawnItem);
                 } else {
                     toSend.addAll(Arrays.asList(text));
                 }

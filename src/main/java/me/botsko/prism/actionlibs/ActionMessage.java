@@ -30,6 +30,10 @@ public class ActionMessage {
         this.index = index;
     }
 
+    public Handler getHandler() {
+        return handler;
+    }
+
     /**
      * Here, we don't use formatting or anything, we just use a regular message raw.
      * This will automatically show extended information, as this can be passed to a
