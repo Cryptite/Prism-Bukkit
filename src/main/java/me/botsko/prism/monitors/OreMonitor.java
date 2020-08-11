@@ -10,7 +10,6 @@ import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
-import net.md_5.bungee.api.chat.hover.content.Item;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -81,10 +80,10 @@ public class OreMonitor {
                         + getOreNiceName(block) + " " + light + "% light";
                 final TextComponent component = new TextComponent(msg);
                 component.setColor(getOreColor(block));
-                HoverEvent hoverBlock = new HoverEvent(HoverEvent.Action.SHOW_ITEM,
-                        new Item(block.getBlockData().getMaterial().getKey().toString(),
-                                1, null));
-                component.setHoverEvent(hoverBlock);
+//                HoverEvent hoverBlock = new HoverEvent(HoverEvent.Action.SHOW_ITEM,
+//                        new Item(block.getBlockData().getMaterial().getKey().toString(),
+//                                1, null));
+//                component.setHoverEvent(hoverBlock);
                 plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
                     // check if block placed
                     boolean wasplaced = false;

@@ -12,6 +12,8 @@ import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static net.md_5.bungee.api.ChatColor.GRAY;
+
 @SuppressWarnings("unused")
 public class TypeUtils {
     private static final String HEX_REGEX = "#([A-Fa-f0-9]{6})";
@@ -86,7 +88,7 @@ public class TypeUtils {
                 Color color;
                 try {
                     color = Color.decode(hex);
-                    out = out.replace(hex, net.md_5.bungee.api.ChatColor.of(color).toString());
+//                    out = out.replace(hex, net.md_5.bungee.api.ChatColor.of(color).toString());
                 } catch (NumberFormatException e) {
                     out = out.replace(hex, "");
                     Prism.log("Invalid hex code removed: " + hex + " from " + input);
@@ -112,7 +114,7 @@ public class TypeUtils {
             return ChatColor.WHITE;
         }
         try {
-            return ChatColor.of(hex);
+            return GRAY;//ChatColor.of(hex);
         } catch (NumberFormatException e) {
             Prism.log("Could not decode:" + hex + " Exception:" + e.getLocalizedMessage());
             return ChatColor.WHITE;

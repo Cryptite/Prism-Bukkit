@@ -1,43 +1,20 @@
 package me.botsko.prism;
 
 import io.papermc.lib.PaperLib;
-import me.botsko.prism.actionlibs.ActionRegistry;
-import me.botsko.prism.actionlibs.HandlerRegistry;
-import me.botsko.prism.actionlibs.Ignore;
-import me.botsko.prism.actionlibs.InternalAffairs;
-import me.botsko.prism.actionlibs.QueryResult;
-import me.botsko.prism.actionlibs.QueueDrain;
-import me.botsko.prism.actionlibs.RecordingTask;
+import me.botsko.prism.actionlibs.*;
 import me.botsko.prism.appliers.PreviewSession;
 import me.botsko.prism.commands.PrismCommands;
 import me.botsko.prism.commands.WhatCommand;
 import me.botsko.prism.database.PrismDataSource;
 import me.botsko.prism.database.PrismDatabaseFactory;
-import me.botsko.prism.listeners.PrismBlockEvents;
-import me.botsko.prism.listeners.PrismCustomEvents;
-import me.botsko.prism.listeners.PrismEntityEvents;
-import me.botsko.prism.listeners.PrismInventoryEvents;
-import me.botsko.prism.listeners.PrismInventoryMoveItemEvent;
-import me.botsko.prism.listeners.PrismPlayerEvents;
-import me.botsko.prism.listeners.PrismVehicleEvents;
-import me.botsko.prism.listeners.PrismWorldEvents;
+import me.botsko.prism.events.PrismLoadedEvent;
+import me.botsko.prism.listeners.*;
 import me.botsko.prism.listeners.self.PrismMiscEvents;
 import me.botsko.prism.measurement.QueueStats;
 import me.botsko.prism.measurement.TimeTaken;
 import me.botsko.prism.monitors.OreMonitor;
 import me.botsko.prism.monitors.UseMonitor;
-import me.botsko.prism.parameters.ActionParameter;
-import me.botsko.prism.parameters.BeforeParameter;
-import me.botsko.prism.parameters.BlockParameter;
-import me.botsko.prism.parameters.EntityParameter;
-import me.botsko.prism.parameters.FlagParameter;
-import me.botsko.prism.parameters.IdParameter;
-import me.botsko.prism.parameters.KeywordParameter;
-import me.botsko.prism.parameters.PlayerParameter;
-import me.botsko.prism.parameters.PrismParameterHandler;
-import me.botsko.prism.parameters.RadiusParameter;
-import me.botsko.prism.parameters.SinceParameter;
-import me.botsko.prism.parameters.WorldParameter;
+import me.botsko.prism.parameters.*;
 import me.botsko.prism.players.PlayerIdentification;
 import me.botsko.prism.players.PrismPlayer;
 import me.botsko.prism.purge.PurgeManager;
@@ -58,32 +35,22 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.plugin.java.JavaPluginLoader;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.FileHandler;
-import java.util.logging.Handler;
-import java.util.logging.Level;
-import java.util.logging.LogRecord;
-import java.util.function.Function;
-import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
+import java.util.logging.*;
 import java.util.stream.Collectors;
 
 public class Prism extends JavaPlugin {
@@ -307,8 +274,8 @@ public class Prism extends JavaPlugin {
     }
 
     public static void warn(String message, Exception e) {
-        log.log(Level.WARNING,"[" + getPrismName() + "] " + message,e);
-        prismLog.log(Level.WARNING,"[" + getPrismName() + "] " + message,e);
+        log.log(Level.WARNING, "[" + getPrismName() + "] " + message, e);
+        prismLog.log(Level.WARNING, "[" + getPrismName() + "] " + message, e);
     }
 
     /**
@@ -445,7 +412,7 @@ public class Prism extends JavaPlugin {
     private Logger createPrismLogger() {
         Logger result = Logger.getLogger("PrismLogger");
         result.setUseParentHandlers(false);
-        for (Handler handler :result.getHandlers()) {
+        for (Handler handler : result.getHandlers()) {
             result.removeHandler(handler);
         }
         try {
@@ -472,7 +439,7 @@ public class Prism extends JavaPlugin {
         if (isEnabled()) {
             PluginCommand command = getCommand("prism");
             if (command != null) {
-                PrismCommands commands = new PrismCommands(this,true);
+                PrismCommands commands = new PrismCommands(this, true);
                 command.setExecutor(commands);
                 command.setTabCompleter(commands);
             } else {
@@ -513,7 +480,7 @@ public class Prism extends JavaPlugin {
             // Add commands
             PluginCommand command = getCommand("prism");
             if (command != null) {
-                PrismCommands commands = new PrismCommands(this,false);
+                PrismCommands commands = new PrismCommands(this, false);
                 command.setExecutor(commands);
                 command.setTabCompleter(commands);
             } else {
@@ -568,6 +535,7 @@ public class Prism extends JavaPlugin {
             }
 
             items.initMaterials(Material.AIR);
+            Bukkit.getPluginManager().callEvent(new PrismLoadedEvent(this));
         }
     }
 

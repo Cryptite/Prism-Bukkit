@@ -29,7 +29,6 @@ public class TabLibraryHelper {
             Material.SNOW_BLOCK,
             Material.WATER,
             Material.GRASS,
-            Material.SOUL_SOIL,
             Material.SOUL_SAND,
             Material.NETHERRACK);
 
@@ -52,7 +51,6 @@ public class TabLibraryHelper {
             Material.PISTON_HEAD,
             Material.MOVING_PISTON,
             Material.WALL_TORCH,
-            Material.SOUL_WALL_TORCH,
             Material.LADDER,
             Material.LEVER,
             Material.REDSTONE_WALL_TORCH,
@@ -76,7 +74,6 @@ public class TabLibraryHelper {
             Material.PISTON_HEAD,
             Material.MOVING_PISTON,
             Material.TORCH,
-            Material.SOUL_TORCH,
             Material.REDSTONE,
             Material.WHEAT,
             Material.LEVER,
@@ -135,9 +132,7 @@ public class TabLibraryHelper {
                             Material.REDSTONE_TORCH,
                             Material.SUGAR_CANE,
                             Material.TORCH,
-                            Material.SOUL_TORCH,
                             Material.WALL_TORCH,
-                            Material.SOUL_WALL_TORCH,
                             Material.REDSTONE_WALL_TORCH,
                             Material.TRIPWIRE)
                     .append(

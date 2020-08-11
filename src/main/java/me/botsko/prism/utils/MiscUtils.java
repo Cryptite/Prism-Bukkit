@@ -7,13 +7,11 @@ import me.botsko.prism.actionlibs.ActionMessage;
 import me.botsko.prism.actionlibs.QueryResult;
 import me.botsko.prism.actions.Handler;
 import me.botsko.prism.appliers.PrismProcessType;
-import me.botsko.prism.utils.block.Utilities;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
-import net.md_5.bungee.api.chat.hover.content.Text;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
@@ -21,18 +19,12 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
-import org.kitteh.pastegg.Paste;
-import org.kitteh.pastegg.PasteBuilder;
-import org.kitteh.pastegg.PasteContent;
-import org.kitteh.pastegg.PasteFile;
-import org.kitteh.pastegg.Visibility;
+import org.kitteh.pastegg.*;
 
-import java.awt.Color;
-import java.time.ZonedDateTime;
+import java.awt.*;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 
 public class MiscUtils {
@@ -177,7 +169,7 @@ public class MiscUtils {
                 if (i == 0) {
                     Arrays.asList(text).forEach(baseComponent -> {
                         baseComponent.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                                new Text("Click to teleport")));
+                                new TextComponent[]{new TextComponent("Click to teleport")}));
                         baseComponent.setClickEvent(
                                 new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/pr tp "
                                         + a.getIndex()));
@@ -299,9 +291,9 @@ public class MiscUtils {
      */
     public static TextComponent getPreviousButton() {
         TextComponent textComponent = new TextComponent(" [<< Prev]");
-        textComponent.setColor(ChatColor.of(Color.decode("#ef9696")));
+        textComponent.setColor(ChatColor.GRAY);
         textComponent.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                new Text("Click to view the previous page")));
+                new TextComponent[]{new TextComponent("Click to view the previous page")}));
         textComponent.setClickEvent(
                 new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/pr pg p"));
         return textComponent;
@@ -315,7 +307,7 @@ public class MiscUtils {
      */
     public static TextComponent getNextButton() {
         TextComponent textComponent = new TextComponent("           ");
-        textComponent.setColor(ChatColor.of(Color.decode("#01a960")));
+        textComponent.setColor(ChatColor.GRAY);
         textComponent.addExtra(getNextButtonComponent());
         return textComponent;
     }
@@ -328,8 +320,8 @@ public class MiscUtils {
     private static BaseComponent getNextButtonComponent() {
         TextComponent textComponent = new TextComponent("[Next >>]");
         textComponent.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                new Text("Click to view the next page")));
-        textComponent.setColor(ChatColor.of(Color.decode("#01a960")));
+                new TextComponent[]{new TextComponent("Click to view the next page")}));
+        textComponent.setColor(ChatColor.GRAY);
         textComponent.setClickEvent(
                 new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/pr pg n"));
         return textComponent;
@@ -344,7 +336,7 @@ public class MiscUtils {
         List<TextComponent> textComponent = new ArrayList<>();
         textComponent.add(getPreviousButton());
         TextComponent divider = new TextComponent(" | ");
-        divider.setColor(ChatColor.of(Color.decode("#969696")));
+        divider.setColor(ChatColor.GRAY);
         textComponent.add(divider);
         textComponent.add(getNextButton());
         return textComponent.toArray(new BaseComponent[0]);
