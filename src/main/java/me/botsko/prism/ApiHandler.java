@@ -7,6 +7,7 @@ import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import me.botsko.prism.actionlibs.RecordingQueue;
 import me.botsko.prism.actions.ActionMeter;
 import me.botsko.prism.bridge.PrismBlockEditHandler;
+import me.botsko.prism.measurement.QueueStats;
 import org.bukkit.plugin.Plugin;
 
 import java.util.ArrayList;
@@ -38,6 +39,14 @@ public class ApiHandler {
             ActionMeter.setupActionMeter();
             DripGauge<Integer> recordingQ = RecordingQueue::getQueueSize;
             ApiHandler.monitor.addGauge(Prism.class, recordingQ, "RecordingQueueSize");
+            DripGauge<Double> batchInsertNum = QueueStats::getPerMinuteInsertAverage;
+            ApiHandler.monitor.addGauge(Prism.class, batchInsertNum, "BatchInsertSize");
+            DripGauge<Double> batchProcessTime = QueueStats::getPerMinuteBatchProcessAverage;
+            ApiHandler.monitor.addGauge(Prism.class, batchProcessTime, "BatchProcessingTime");
+            DripGauge<Double> batchBuildAverage = QueueStats::getPerMinuteBatchBuildAverage;
+            ApiHandler.monitor.addGauge(Prism.class, batchBuildAverage, "BatchBuildTime");
+
+
         }
     }
 
@@ -51,7 +60,7 @@ public class ApiHandler {
                 WorldEdit.getInstance().getEventBus().register(new PrismBlockEditHandler());
                 Prism.log("WorldEdit found. Associated features enabled.");
             } catch (Throwable error) {
-                Prism.log("Required WorldEdit version is 6.0.0 or greater!"
+                Prism.log("Required WorldEdit version is 7.1.0 or greater!"
                         + " Certain optional features of Prism disabled.");
                 Prism.debug(error.getMessage());
             }
