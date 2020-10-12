@@ -46,6 +46,12 @@ public class SqlInsertBuilder extends QueryBuilder implements InsertQuery {
         if (Prism.prismWorlds.containsKey(worldName)) {
             worldId = Prism.prismWorlds.get(worldName);
         }
+
+        if (a.getActionType() == null) {
+            Prism.debug("No action type defined for " + a);
+            return 0;
+        }
+
         int actionId = 0;
         if (Prism.prismActions.containsKey(a.getActionType().getName())) {
             actionId = Prism.prismActions.get(a.getActionType().getName());
