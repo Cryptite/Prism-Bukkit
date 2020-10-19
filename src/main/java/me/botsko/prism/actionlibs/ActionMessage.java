@@ -86,7 +86,13 @@ public class ActionMessage {
                              .color(NamedTextColor.GRAY))
                 .replaceFirstText(Pattern.compile("<handlerId>"),
                       builder -> Component.text(handler.getId()).toBuilder()
-                                .color(NamedTextColor.GRAY));
+                                .color(NamedTextColor.GRAY))
+                .replaceFirstText(Pattern.compile("<spawnin>"),
+                      builder -> Component.text("<S>").toBuilder()
+                                .color(NamedTextColor.GRAY)
+                                .clickEvent(ClickEvent.runCommand("/giveitem prid " + handler.getId()))
+                                .hoverEvent(HoverEvent.showText(Component.text("Click to spawn in this item")
+                                      .color(NamedTextColor.DARK_AQUA))));
         return Component.text()
                 .content("")
                 .append(result)
@@ -104,7 +110,7 @@ public class ActionMessage {
      */
     public TextComponent getMessage() {
         String format1 =
-                "<prefix> <index> <target> <description> <actorNice> <extendedInfo> <count> <timeDiff> <actionType>";
+                "<prefix> <index> <target> <description> <actorNice> <extendedInfo> <count> <timeDiff> <actionType> <spawnin>";
         String format2 = "-<handlerId>- <dateTime> - <location>";
         ActionType action = handler.getActionType();
         TextComponent out = getMainMessage(action, format1);
