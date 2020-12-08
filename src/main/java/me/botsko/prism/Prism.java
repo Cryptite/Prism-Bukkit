@@ -14,6 +14,7 @@ import me.botsko.prism.commands.PrismCommands;
 import me.botsko.prism.commands.WhatCommand;
 import me.botsko.prism.database.PrismDataSource;
 import me.botsko.prism.database.PrismDatabaseFactory;
+import me.botsko.prism.events.PrismLoadedEvent;
 import me.botsko.prism.listeners.PrismBlockEvents;
 import me.botsko.prism.listeners.PrismCustomEvents;
 import me.botsko.prism.listeners.PrismEntityEvents;
@@ -578,6 +579,7 @@ public class Prism extends JavaPlugin {
             }
 
             items.initMaterials(Material.AIR);
+            Bukkit.getPluginManager().callEvent(new PrismLoadedEvent(this));
         }
     }
 
