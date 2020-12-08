@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Created for the Ark: Survival Evolved.
  * Created by Narimm on 5/06/2017.
  */
 public class PurgeCommand implements SubHandler {
@@ -27,23 +26,24 @@ public class PurgeCommand implements SubHandler {
 
     @Override
     public void handle(CallInfo call) {
-        Audience sender = Prism.getAudiences().sender(call.getSender());
-        if (call.getArgs().length < 1) {
+        if (call.getArgs().length <= 1) {
             Prism.messenger.sendMessage(call.getSender(),
-                    Prism.messenger.playerHeaderMsg(Component.text().content("Prism")
-                            .append(Component.text(" v" + plugin.getPrismVersion()).color(NamedTextColor.GRAY))
-                            .build()));
-            sender.sendMessage(Prism.messenger.playerSubduedHeaderMsg(ReplaceableTextComponent.builder("purge-report")
+                    Prism.messenger.playerHeaderMsg(Component.text("Prism")
+                            .append(Component.text(" v" + plugin.getPrismVersion()).color(NamedTextColor.GRAY))));
+            Prism.messenger.sendMessage(call.getSender(),
+                  Prism.messenger.playerSubduedHeaderMsg(ReplaceableTextComponent.builder("purge-report")
                     .replace("<taskCount>", plugin.getSchedulePool().getTaskCount())
                     .replace("<purgesComplete>", plugin.getSchedulePool().getCompletedTaskCount())
                     .replace("<poolString>", plugin.getSchedulePool().toString())
                     .build()));
-        } else {
-            if (Objects.equals(call.getArgs()[0], "execute")) {
-                sender.sendMessage(
+        } else if (call.getArgs().length > 1) {
+            if (Objects.equals(call.getArgs()[1], "execute")) {
+                Prism.messenger.sendMessage(call.getSender(),
                         Prism.messenger.playerHeaderMsg(Il8nHelper.getMessage("purge-execute")));
                 Bukkit.getScheduler().runTaskAsynchronously(plugin, plugin.getPurgeManager());
             }
+        } else {
+            Prism.messenger.sendMessage(call.getSender(),Il8nHelper.getMessage("invalid-command"));
         }
 
     }
