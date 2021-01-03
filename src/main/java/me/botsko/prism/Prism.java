@@ -17,6 +17,7 @@ import me.botsko.prism.database.PrismDatabaseFactory;
 import me.botsko.prism.events.PrismLoadedEvent;
 import me.botsko.prism.listeners.PaperListeners;
 import me.botsko.prism.database.sql.SqlPlayerIdentificationBuilder;
+import me.botsko.prism.database.sql.SqlPlayerIdentificationHelper;
 import me.botsko.prism.listeners.PrismBlockEvents;
 import me.botsko.prism.listeners.PrismCustomEvents;
 import me.botsko.prism.listeners.PrismEntityEvents;
@@ -42,7 +43,6 @@ import me.botsko.prism.parameters.PrismParameterHandler;
 import me.botsko.prism.parameters.RadiusParameter;
 import me.botsko.prism.parameters.SinceParameter;
 import me.botsko.prism.parameters.WorldParameter;
-import me.botsko.prism.players.PlayerIdentification;
 import me.botsko.prism.players.PrismPlayer;
 import me.botsko.prism.purge.PurgeManager;
 import me.botsko.prism.utils.MaterialAliases;
@@ -441,7 +441,7 @@ public class Prism extends JavaPlugin {
 
             // Cache world IDs
             prismDataSource.cacheWorldPrimaryKeys(prismWorlds);
-            SqlPlayerIdentificationBuilder.cacheOnlinePlayerPrimaryKeys(playerNames);
+            SqlPlayerIdentificationHelper.cacheOnlinePlayerPrimaryKeys(playerNames);
 
             // ensure current worlds are added
             for (final String w : worldNames) {
