@@ -80,8 +80,6 @@ import org.bukkit.scheduler.BukkitTask;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -115,7 +113,7 @@ public class Prism extends JavaPlugin implements PrismApi {
     private static final HashMap<Material, TextColor> alertedOres = new HashMap<>();
     private static final Logger log = Logger.getLogger("Minecraft");
     private static final HashMap<String, PrismParameterHandler> paramHandlers = new HashMap<>();
-    private static URL baseUrl = null;
+    private static String baseUrl = "https://prism-bukkit.readthedocs.io/en/latest/";
     public static Messenger messenger;
     public static FileConfiguration config;
     public static boolean isPaper = true;
@@ -165,11 +163,6 @@ public class Prism extends JavaPlugin implements PrismApi {
 
     protected Prism(JavaPluginLoader loader, PluginDescriptionFile description, File dataFolder, File file) {
         super(loader, description, dataFolder, file);
-        try {
-            baseUrl = new URL("https://prism-bukkit.readthedocs.io/en/latest/");
-        } catch (MalformedURLException e) {
-            System.out.println(e.getMessage());
-        }
     }
 
     public static BukkitAudiences getAudiences() {
@@ -377,7 +370,7 @@ public class Prism extends JavaPlugin implements PrismApi {
         return instance;
     }
 
-    public static URL getBaseUrl() {
+    public static String getBaseUrl() {
         return baseUrl;
     }
 
@@ -606,7 +599,8 @@ public class Prism extends JavaPlugin implements PrismApi {
             }
 
             items.initMaterials(Material.AIR);
-            Bukkit.getPluginManager().callEvent(EventHelper.createLoadEvent(this));
+            Bukkit.getScheduler().runTaskAsynchronously(instance,
+                    () -> Bukkit.getPluginManager().callEvent(EventHelper.createLoadEvent(Prism.getInstance())));
         }
     }
 
