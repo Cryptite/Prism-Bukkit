@@ -4,9 +4,11 @@ import me.botsko.prism.Il8nHelper;
 import me.botsko.prism.Prism;
 import me.botsko.prism.actionlibs.QueryParameters;
 import me.botsko.prism.actions.GenericAction;
+import me.botsko.prism.actions.ItemStackAction;
 import me.botsko.prism.api.BlockStateChange;
 import me.botsko.prism.api.ChangeResult;
 import me.botsko.prism.api.ChangeResultType;
+import me.botsko.prism.api.ItemStackChange;
 import me.botsko.prism.api.actions.Handler;
 import me.botsko.prism.api.actions.PrismProcessType;
 import me.botsko.prism.api.objects.ApplierResult;
@@ -25,13 +27,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 public class Preview implements Previewable {
 
@@ -40,6 +36,7 @@ public class Preview implements Previewable {
     protected final Player player;
     protected final QueryParameters parameters;
     protected final List<BlockStateChange> blockStateChanges = new ArrayList<>();
+    protected final List<ItemStackChange> itemStackChanges = new ArrayList<>();
     private final PrismProcessType processType;
     private final HashMap<Entity, Integer> entitiesMoved = new HashMap<>();
     private final List<Handler> worldChangeQueue = Collections.synchronizedList(new LinkedList<>());
@@ -241,6 +238,11 @@ public class Preview implements Previewable {
                             continue;
                         } else if (result.getType().equals(ChangeResultType.PLANNED)) {
                             changesPlannedCount++;
+
+                            if (a instanceof ItemStackAction) {
+                                itemStackChanges.add(new ItemStackChange(((ItemStackAction) a).getItem(), a.getLoc().getBlock()));
+                            }
+
                             continue;
                         } else {
                             blockStateChanges.add(result.getBlockStateChange());
@@ -345,8 +347,8 @@ public class Preview implements Previewable {
 
         // Trigger the events
         if (processType.equals(PrismProcessType.ROLLBACK)) {
-            final PrismRollBackEvent event = EventHelper.createRollBackEvent(blockStateChanges, player, parameters,
-                  results);
+            final PrismRollBackEvent event = EventHelper.createRollBackEvent(blockStateChanges, itemStackChanges, player, parameters,
+                    results);
             plugin.getServer().getPluginManager().callEvent(event);
         }
 

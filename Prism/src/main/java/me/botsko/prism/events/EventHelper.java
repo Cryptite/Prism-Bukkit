@@ -1,6 +1,7 @@
 package me.botsko.prism.events;
 
 import me.botsko.prism.api.BlockStateChange;
+import me.botsko.prism.api.ItemStackChange;
 import me.botsko.prism.api.PrismApi;
 import me.botsko.prism.api.PrismParameters;
 import me.botsko.prism.api.objects.ApplierResult;
@@ -16,9 +17,9 @@ import java.util.List;
 public class EventHelper {
 
     public static PrismRollBackEvent createRollBackEvent(List<BlockStateChange> blockStateChanges,
-                                                         Player onBehalfOf, PrismParameters parameters,
+                                                         List<ItemStackChange> itemStackChanges, Player onBehalfOf, PrismParameters parameters,
                                                          ApplierResult result) {
-        return new PrismRollBackEvent(blockStateChanges, onBehalfOf, parameters, result);
+        return new PrismRollBackEvent(blockStateChanges, itemStackChanges, onBehalfOf, parameters, result);
     }
 
     public static PrismLoadedEvent createLoadEvent(PrismApi api) {

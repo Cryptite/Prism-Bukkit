@@ -2,6 +2,7 @@ package me.botsko.prism.events;
 
 
 import me.botsko.prism.api.BlockStateChange;
+import me.botsko.prism.api.ItemStackChange;
 import me.botsko.prism.api.PrismParameters;
 import me.botsko.prism.api.objects.ApplierResult;
 import org.bukkit.entity.Player;
@@ -19,21 +20,23 @@ public class PrismRollBackEvent extends Event {
 
     private static final HandlerList handlers = new HandlerList();
     private final List<BlockStateChange> blockStateChanges;
+    private final List<ItemStackChange> itemStackChanges;
     private final Player onBehalfOf;
     private final PrismParameters parameters;
     private final ApplierResult result;
 
     /**
      * Constructor.
-     *
-     * @param blockStateChanges List BlockStateChange
+     *  @param blockStateChanges List BlockStateChange
+     * @param itemStackChanges
      * @param onBehalfOf        Player
      * @param parameters        QueryParameters
      * @param result            ApplierResult
      */
-    protected PrismRollBackEvent(List<BlockStateChange> blockStateChanges, Player onBehalfOf,
+    protected PrismRollBackEvent(List<BlockStateChange> blockStateChanges, List<ItemStackChange> itemStackChanges, Player onBehalfOf,
                                  PrismParameters parameters, ApplierResult result) {
         this.blockStateChanges = blockStateChanges;
+        this.itemStackChanges = itemStackChanges;
         this.onBehalfOf = onBehalfOf;
         this.parameters = parameters;
         this.result = result;
@@ -55,6 +58,10 @@ public class PrismRollBackEvent extends Event {
      */
     public List<BlockStateChange> getBlockStateChanges() {
         return blockStateChanges;
+    }
+
+    public List<ItemStackChange> getItemStackChanges() {
+        return itemStackChanges;
     }
 
     @Override
