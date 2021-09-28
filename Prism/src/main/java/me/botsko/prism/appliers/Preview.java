@@ -4,7 +4,6 @@ import me.botsko.prism.Il8nHelper;
 import me.botsko.prism.Prism;
 import me.botsko.prism.actionlibs.QueryParameters;
 import me.botsko.prism.actions.GenericAction;
-import me.botsko.prism.actions.ItemStackAction;
 import me.botsko.prism.api.BlockStateChange;
 import me.botsko.prism.api.ChangeResult;
 import me.botsko.prism.api.ChangeResultType;
@@ -157,7 +156,7 @@ public class Preview implements Previewable {
                                     .replace("<processType>", processType.name().toLowerCase())
                                     .replace("<originalCommand>", parameters.getOriginalCommand(),
                                             Style.style(NamedTextColor.GRAY))
-                                    .build().colorIfAbsent(NamedTextColor.WHITE));
+                                    .build().colorIfAbsent(NamedTextColor.WHITE), null);
                         }
                     }
                 }
@@ -252,20 +251,18 @@ public class Preview implements Previewable {
                             iterator.remove();
                         }
                     } catch (final Exception e) {
-                        String line = "Applier error:";
-                        String message = e.getMessage();
-
-                        if (message != null) {
-                            line += (' ' + message);
-                        }
-
-                        Prism.log(line);
+                        String msg = e.getMessage() == null ? "unknown cause" : e.getMessage();
+                        Prism.log(String.format("Applier error: %s (ID: %d)", msg, a.getId()));
+                        Prism.log(String.format("Block type: %s (old %s)", a.getMaterial(), a.getOldMaterial()));
+                        Prism.log(String.format("Block location: %d, %d, %d",
+                                a.getLoc().getBlockX(),
+                                a.getLoc().getBlockY(),
+                                a.getLoc().getBlockZ()));
                         e.printStackTrace();
 
                         // Count as skipped, remove from queue
                         skippedBlockCount++;
                         iterator.remove();
-
                     }
                 }
             }
@@ -348,7 +345,7 @@ public class Preview implements Previewable {
         // Trigger the events
         if (processType.equals(PrismProcessType.ROLLBACK)) {
             final PrismRollBackEvent event = EventHelper.createRollBackEvent(blockStateChanges, itemStackChanges, player, parameters,
-                    results);
+                  results);
             plugin.getServer().getPluginManager().callEvent(event);
         }
 

@@ -1,7 +1,15 @@
 package me.botsko.prism;
 
 import io.papermc.lib.PaperLib;
-import me.botsko.prism.actionlibs.*;
+import me.botsko.prism.actionlibs.ActionRegistry;
+import me.botsko.prism.actionlibs.ActionsQuery;
+import me.botsko.prism.actionlibs.HandlerRegistry;
+import me.botsko.prism.actionlibs.Ignore;
+import me.botsko.prism.actionlibs.InternalAffairs;
+import me.botsko.prism.actionlibs.QueryParameters;
+import me.botsko.prism.actionlibs.QueryResult;
+import me.botsko.prism.actionlibs.QueueDrain;
+import me.botsko.prism.actionlibs.RecordingTask;
 import me.botsko.prism.actions.ActionMeter;
 import me.botsko.prism.api.PrismApi;
 import me.botsko.prism.api.PrismParameters;
@@ -13,13 +21,32 @@ import me.botsko.prism.database.PrismDataSource;
 import me.botsko.prism.database.PrismDatabaseFactory;
 import me.botsko.prism.database.sql.SqlPlayerIdentificationHelper;
 import me.botsko.prism.events.EventHelper;
-import me.botsko.prism.listeners.*;
+import me.botsko.prism.listeners.PaperListeners;
+import me.botsko.prism.listeners.PrismBlockEvents;
+import me.botsko.prism.listeners.PrismCustomEvents;
+import me.botsko.prism.listeners.PrismEntityEvents;
+import me.botsko.prism.listeners.PrismInventoryEvents;
+import me.botsko.prism.listeners.PrismInventoryMoveItemEvent;
+import me.botsko.prism.listeners.PrismPlayerEvents;
+import me.botsko.prism.listeners.PrismVehicleEvents;
+import me.botsko.prism.listeners.PrismWorldEvents;
 import me.botsko.prism.listeners.self.PrismMiscEvents;
 import me.botsko.prism.measurement.QueueStats;
 import me.botsko.prism.measurement.TimeTaken;
 import me.botsko.prism.monitors.OreMonitor;
 import me.botsko.prism.monitors.UseMonitor;
-import me.botsko.prism.parameters.*;
+import me.botsko.prism.parameters.ActionParameter;
+import me.botsko.prism.parameters.BeforeParameter;
+import me.botsko.prism.parameters.BlockParameter;
+import me.botsko.prism.parameters.EntityParameter;
+import me.botsko.prism.parameters.FlagParameter;
+import me.botsko.prism.parameters.IdParameter;
+import me.botsko.prism.parameters.KeywordParameter;
+import me.botsko.prism.parameters.PlayerParameter;
+import me.botsko.prism.parameters.PrismParameterHandler;
+import me.botsko.prism.parameters.RadiusParameter;
+import me.botsko.prism.parameters.SinceParameter;
+import me.botsko.prism.parameters.WorldParameter;
 import me.botsko.prism.players.PrismPlayer;
 import me.botsko.prism.purge.PurgeManager;
 import me.botsko.prism.utils.MaterialAliases;
@@ -54,8 +81,20 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.Map.Entry;
-import java.util.concurrent.*;
-import java.util.logging.*;
+import java.util.Objects;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.FileHandler;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.LogRecord;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 import java.util.stream.Collectors;
 
 public class Prism extends JavaPlugin implements PrismApi {
@@ -734,19 +773,20 @@ public class Prism extends JavaPlugin implements PrismApi {
     }
 
     /**
-     * Send an alert to a player.
+     * Send an alert to players.
      *
-     * @param msg String
+     * @param player    Player which caused the alert
+     * @param msg       Alert message
+     * @param alertPerm Players with this permission (or prism.alerts) will receive the alert
      */
-    public void alertPlayers(Player player, Component msg) {
+    public void alertPlayers(Player player, Component msg, String alertPerm) {
         for (final Player p : getServer().getOnlinePlayers()) {
-            if (!p.equals(player) || getConfig().getBoolean("prism.alerts.alert-player-about-self")) {
-                if (p.hasPermission("prism.alerts")) {
-                    TextComponent prefix = Il8nHelper.getMessage("alert-prefix")
+            if ((!p.equals(player) || getConfig().getBoolean("prism.alerts.alert-player-about-self"))
+                  && (p.hasPermission("prism.alerts") || (alertPerm != null && p.hasPermission(alertPerm)))) {
+                TextComponent prefix = Il8nHelper.getMessage("alert-prefix")
                             .color(NamedTextColor.RED)
                             .append(msg);
-                    audiences.player(p).sendMessage(Identity.nil(), prefix);
-                }
+                audiences.player(p).sendMessage(Identity.nil(), prefix);
             }
         }
     }

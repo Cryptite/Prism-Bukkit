@@ -17,7 +17,8 @@ import java.util.List;
 public class EventHelper {
 
     public static PrismRollBackEvent createRollBackEvent(List<BlockStateChange> blockStateChanges,
-                                                         List<ItemStackChange> itemStackChanges, Player onBehalfOf, PrismParameters parameters,
+                                                         List<ItemStackChange> itemStackChanges,
+                                                         Player onBehalfOf, PrismParameters parameters,
                                                          ApplierResult result) {
         return new PrismRollBackEvent(blockStateChanges, itemStackChanges, onBehalfOf, parameters, result);
     }
