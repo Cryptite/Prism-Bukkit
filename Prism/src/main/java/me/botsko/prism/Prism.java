@@ -592,7 +592,7 @@ public class Prism extends JavaPlugin implements PrismApi {
             }
 
             items.initMaterials(Material.AIR);
-            Bukkit.getScheduler().runTaskAsynchronously(instance,
+            Bukkit.getScheduler().runTask(instance,
                     () -> Bukkit.getPluginManager().callEvent(EventHelper.createLoadEvent(Prism.getInstance())));
         }
     }
