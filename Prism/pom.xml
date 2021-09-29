@@ -211,10 +211,6 @@
                             <pattern>com.zaxxer.hikari</pattern>
                             <shadedPattern>com.botsko.prism.libs.hikari</shadedPattern>
                         </relocation>
-                        <relocation>
-                            <pattern>net.kyori</pattern>
-                            <shadedPattern>com.botsko.prism.libs</shadedPattern>
-                        </relocation>
                     </relocations>
                 </configuration>
                 <executions>

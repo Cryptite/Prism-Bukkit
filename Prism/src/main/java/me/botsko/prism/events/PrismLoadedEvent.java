@@ -1,6 +1,7 @@
 package me.botsko.prism.events;
 
 import me.botsko.prism.Prism;
+import me.botsko.prism.api.PrismApi;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
@@ -10,12 +11,12 @@ public class PrismLoadedEvent extends Event {
     /**
      *
      */
-    private final Prism plugin;
+    private final PrismApi plugin;
 
     /**
      * @param plugin
      */
-    public PrismLoadedEvent(Prism plugin) {
+    public PrismLoadedEvent(PrismApi plugin) {
         this.plugin = plugin;
     }
 

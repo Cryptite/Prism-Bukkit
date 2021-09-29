@@ -1,11 +1,10 @@
 package me.botsko.prism.events;
 
 import me.botsko.prism.actionlibs.QueryParameters;
-import me.botsko.prism.appliers.ApplierResult;
+import me.botsko.prism.api.objects.ApplierResult;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
-import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 
