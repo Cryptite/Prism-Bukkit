@@ -51,7 +51,7 @@ public class ActionMessage {
      * @return String
      */
     public String getRawMessage() {
-        String format1 = "<prefix> <handlerId> <target> <actor> <extendedInfo> <actorNice> <count>"
+        String format1 = "<prefix> <handlerId> <target> <actor> <extendedInfo><actorNice> <count>"
                 + " <timeDiff> <location>";
         ActionType action = handler.getActionType();
         return PlainComponentSerializer.plain().serialize(getMainMessage(action, format1));
@@ -108,7 +108,7 @@ public class ActionMessage {
      */
     public TextComponent getMessage() {
         String format1 =
-                "<prefix> <index> <target> <description> <actorNice> <extendedInfo> <count> <timeDiff> <actionType> <spawnin>";
+                "<prefix> <index> <target> <description> <actorNice> <extendedInfo><count> <timeDiff> <actionType> <spawnin>";
         String format2 = "-<handlerId>- <dateTime> - <location>";
         ActionType action = handler.getActionType();
         TextComponent out = getMainMessage(action, format1);
@@ -148,7 +148,7 @@ public class ActionMessage {
 
     private TextComponent getExtendedInfo() {
         if (showExtended && (handler.getMaterial() != Material.AIR)) {
-            return Component.text(handler.getMaterial() + Utilities.dataString(handler.getBlockData()));
+            return Component.text(handler.getMaterial() + Utilities.dataString(handler.getBlockData()) + " ");
         }
         return Component.empty();
     }
@@ -176,7 +176,7 @@ public class ActionMessage {
 
     private TextComponent getCount() {
         if (handler.getAggregateCount() > 1) {
-            return Component.text(" x" + handler.getAggregateCount());
+            return Component.text("x" + handler.getAggregateCount() + " ");
         }
         return Component.empty();
     }
