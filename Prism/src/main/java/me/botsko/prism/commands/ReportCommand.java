@@ -215,8 +215,7 @@ public class ReportCommand extends AbstractCommand {
         final QueryParameters parameters = PreprocessArgs.process(plugin, call.getSender(), call.getArgs(),
               PrismProcessType.LOOKUP, 3, !plugin.getConfig().getBoolean("prism.queries.never-use-defaults"));
         if (parameters == null) {
-            Prism.getAudiences().sender(call.getSender())
-                    .sendMessage(Identity.nil(),
+            call.getSender().sendMessage(Identity.nil(),
                           Prism.messenger.playerError(Il8nHelper.getMessage("report-player-error")));
             return;
         }
@@ -236,8 +235,7 @@ public class ReportCommand extends AbstractCommand {
 
     private boolean checkParams(QueryParameters parameters, CallInfo call) {
         if (!parameters.getActionTypes().isEmpty()) {
-            Prism.getAudiences().sender(call.getSender())
-                    .sendMessage(Identity.nil(),
+            call.getSender().sendMessage(Identity.nil(),
                             Prism.messenger.playerError(
                                     Il8nHelper.getMessage("report-actions-invalid")));
             return true;

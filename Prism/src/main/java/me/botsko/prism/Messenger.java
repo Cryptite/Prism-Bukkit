@@ -1,20 +1,17 @@
 package me.botsko.prism;
 
 import net.kyori.adventure.identity.Identity;
-import net.kyori.adventure.platform.AudienceProvider;
-import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.ConsoleCommandSender;
 
 public class Messenger {
 
 
-    private final AudienceProvider audienceProvider;
     private final String pluginName;
     private static final TextColor defaultColor = TextColor.color(0xb5bcc7);
     private static final TextColor headerColor = TextColor.color(0xb597ba);
@@ -27,9 +24,8 @@ public class Messenger {
      * @param pluginName String
      */
     @SuppressWarnings("WeakerAccess")
-    public Messenger(String pluginName, AudienceProvider provider) {
+    public Messenger(String pluginName) {
         this.pluginName = pluginName;
-        this.audienceProvider = provider;
     }
 
     /**
@@ -39,12 +35,7 @@ public class Messenger {
      * @param message {@link Component}
      */
     public void sendMessage(CommandSender sender, Component message) {
-        if (sender instanceof ConsoleCommandSender) {
-            audienceProvider.console().sendMessage(Identity.nil(),message);
-        } else {
-            ((BukkitAudiences) audienceProvider).sender(sender).sendMessage(Identity.nil(),
-                  message.colorIfAbsent(defaultColor));
-        }
+        sender.sendMessage(message);
     }
 
     /**
@@ -174,10 +165,11 @@ public class Messenger {
 
     /**
      * Send a message to console.
+     *
      * @param msg the message.
      */
     public void sendConsoleMessage(Component msg) {
-        audienceProvider.console().sendMessage(Identity.nil(),msg);
+        Bukkit.getConsoleSender().sendMessage(Identity.nil(), msg);
     }
 
 }

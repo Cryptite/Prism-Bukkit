@@ -7,6 +7,7 @@ import me.botsko.prism.utils.block.Utilities;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.TreeType;
+import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -51,16 +52,29 @@ public class PrismWorldEvents implements Listener {
      */
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBlockFertilize(final BlockFertilizeEvent event) {
-        String type = "bonemeal-use";
+        String type = "block-place";
         if (!Prism.getIgnore().event(type, event.getBlock().getWorld())) {
             return;
         }
 
         for (final BlockState block : event.getBlocks()) {
+            Block currentBlock = block.getLocation().getBlock();
             if (event.getPlayer() != null) {
-                RecordingQueue.addToQueue(ActionFactory.createGrow(type, block, event.getPlayer()));
+                RecordingQueue.addToQueue(ActionFactory.createBlockChange(type,
+                        block.getLocation(),
+                        currentBlock.getType(),
+                        currentBlock.getBlockData(),
+                        block.getType(),
+                        block.getBlockData(),
+                        event.getPlayer()));
             } else {
-                RecordingQueue.addToQueue(ActionFactory.createGrow(type, block, "Environment"));
+                RecordingQueue.addToQueue(ActionFactory.createBlockChange(type,
+                        block.getLocation(),
+                        currentBlock.getType(),
+                        currentBlock.getBlockData(),
+                        block.getType(),
+                        block.getBlockData(),
+                        "Environment"));
             }
         }
     }

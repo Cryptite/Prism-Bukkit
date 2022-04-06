@@ -43,7 +43,6 @@ public class PreviewCommand extends AbstractCommand {
 
     @Override
     public void handle(final CallInfo call) {
-        final Audience audience = Prism.getAudiences().sender(call.getPlayer());
         if (call.getArgs().length >= 2) {
 
             if (call.getArg(1).equalsIgnoreCase("apply")) {
@@ -107,13 +106,13 @@ public class PreviewCommand extends AbstractCommand {
                     // Rollback
                     if (call.getArg(1).equalsIgnoreCase("rollback")
                             || call.getArg(1).equalsIgnoreCase("rb")) {
-                        handleRollBack(call, parameters, results, audience);
+                        handleRollBack(call, parameters, results, call.getPlayer());
                         assert (parameters.getProcessType() == PrismProcessType.ROLLBACK); //todo remove debug
                     }
                     // Restore
                     if (call.getArg(1).equalsIgnoreCase("restore")
                             || call.getArg(1).equalsIgnoreCase("rs")) {
-                        handleRestore(call, parameters, results, audience);
+                        handleRestore(call, parameters, results, call.getPlayer());
                         assert (parameters.getProcessType() == PrismProcessType.RESTORE);//todo remove debug
                     }
                 });

@@ -50,8 +50,7 @@ public class PageCommand implements SubHandler {
         final QueryResult results = plugin.cachedQueries.get(keyName);
 
         if (call.getArgs().length != 2) {
-            Prism.getAudiences().sender(call.getSender())
-                    .sendMessage(Identity.nil(),
+            call.getSender().sendMessage(Identity.nil(),
                           Prism.messenger.playerError("Please specify a page number. Like /prism page 2"));
             return;
         }

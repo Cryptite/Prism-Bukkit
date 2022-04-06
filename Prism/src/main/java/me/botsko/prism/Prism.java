@@ -1,15 +1,7 @@
 package me.botsko.prism;
 
 import io.papermc.lib.PaperLib;
-import me.botsko.prism.actionlibs.ActionRegistry;
-import me.botsko.prism.actionlibs.ActionsQuery;
-import me.botsko.prism.actionlibs.HandlerRegistry;
-import me.botsko.prism.actionlibs.Ignore;
-import me.botsko.prism.actionlibs.InternalAffairs;
-import me.botsko.prism.actionlibs.QueryParameters;
-import me.botsko.prism.actionlibs.QueryResult;
-import me.botsko.prism.actionlibs.QueueDrain;
-import me.botsko.prism.actionlibs.RecordingTask;
+import me.botsko.prism.actionlibs.*;
 import me.botsko.prism.actions.ActionMeter;
 import me.botsko.prism.api.PrismApi;
 import me.botsko.prism.api.PrismParameters;
@@ -21,39 +13,19 @@ import me.botsko.prism.database.PrismDataSource;
 import me.botsko.prism.database.PrismDatabaseFactory;
 import me.botsko.prism.database.sql.SqlPlayerIdentificationHelper;
 import me.botsko.prism.events.EventHelper;
-import me.botsko.prism.listeners.PaperListeners;
-import me.botsko.prism.listeners.PrismBlockEvents;
-import me.botsko.prism.listeners.PrismCustomEvents;
-import me.botsko.prism.listeners.PrismEntityEvents;
-import me.botsko.prism.listeners.PrismInventoryEvents;
-import me.botsko.prism.listeners.PrismInventoryMoveItemEvent;
-import me.botsko.prism.listeners.PrismPlayerEvents;
-import me.botsko.prism.listeners.PrismVehicleEvents;
-import me.botsko.prism.listeners.PrismWorldEvents;
+import me.botsko.prism.listeners.*;
 import me.botsko.prism.listeners.self.PrismMiscEvents;
 import me.botsko.prism.measurement.QueueStats;
 import me.botsko.prism.measurement.TimeTaken;
 import me.botsko.prism.monitors.OreMonitor;
 import me.botsko.prism.monitors.UseMonitor;
-import me.botsko.prism.parameters.ActionParameter;
-import me.botsko.prism.parameters.BeforeParameter;
-import me.botsko.prism.parameters.BlockParameter;
-import me.botsko.prism.parameters.EntityParameter;
-import me.botsko.prism.parameters.FlagParameter;
-import me.botsko.prism.parameters.IdParameter;
-import me.botsko.prism.parameters.KeywordParameter;
-import me.botsko.prism.parameters.PlayerParameter;
-import me.botsko.prism.parameters.PrismParameterHandler;
-import me.botsko.prism.parameters.RadiusParameter;
-import me.botsko.prism.parameters.SinceParameter;
-import me.botsko.prism.parameters.WorldParameter;
+import me.botsko.prism.parameters.*;
 import me.botsko.prism.players.PrismPlayer;
 import me.botsko.prism.purge.PurgeManager;
 import me.botsko.prism.utils.MaterialAliases;
 import me.botsko.prism.utils.TypeUtils;
 import me.botsko.prism.wands.Wand;
 import net.kyori.adventure.identity.Identity;
-import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -81,20 +53,8 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Future;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import java.util.logging.FileHandler;
-import java.util.logging.Handler;
-import java.util.logging.Level;
-import java.util.logging.LogRecord;
-import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
+import java.util.concurrent.*;
+import java.util.logging.*;
 import java.util.stream.Collectors;
 
 public class Prism extends JavaPlugin implements PrismApi {
@@ -123,7 +83,6 @@ public class Prism extends JavaPlugin implements PrismApi {
     private static Prism instance;
     private static boolean debug = false;
     private static BukkitTask debugWatcher;
-    private static BukkitAudiences audiences;
     public final ConcurrentHashMap<String, PreviewSession> playerActivePreviews = new ConcurrentHashMap<>();
     public final ConcurrentHashMap<String, ArrayList<Block>> playerActiveViews = new ConcurrentHashMap<>();
     public final ConcurrentHashMap<String, QueryResult> cachedQueries = new ConcurrentHashMap<>();
@@ -156,10 +115,6 @@ public class Prism extends JavaPlugin implements PrismApi {
 
     protected Prism(JavaPluginLoader loader, PluginDescriptionFile description, File dataFolder, File file) {
         super(loader, description, dataFolder, file);
-    }
-
-    public static BukkitAudiences getAudiences() {
-        return audiences;
     }
 
     public static boolean isDebug() {
@@ -380,8 +335,7 @@ public class Prism extends JavaPlugin implements PrismApi {
         prismLog = createPrismLogger();
         pluginName = this.getDescription().getName();
         pluginVersion = this.getDescription().getVersion();
-        audiences = BukkitAudiences.create(this);
-        messenger = new Messenger(pluginName, Prism.getAudiences());
+        messenger = new Messenger(pluginName);
         log("Initializing Prism " + pluginVersion + ". Originally by Viveleroi; maintained by the AddstarMC Network");
         loadConfig();        // Load configuration, or install if new
         isPaper = PaperLib.isPaper();
@@ -786,7 +740,7 @@ public class Prism extends JavaPlugin implements PrismApi {
                 TextComponent prefix = Il8nHelper.getMessage("alert-prefix")
                             .color(NamedTextColor.RED)
                             .append(msg);
-                audiences.player(p).sendMessage(Identity.nil(), prefix);
+                p.sendMessage(Identity.nil(), prefix);
             }
         }
     }

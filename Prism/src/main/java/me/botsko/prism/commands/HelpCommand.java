@@ -5,7 +5,6 @@ import me.botsko.prism.Prism;
 import me.botsko.prism.commandlibs.CallInfo;
 import me.botsko.prism.commandlibs.SubCommand;
 import me.botsko.prism.commandlibs.SubHandler;
-import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
@@ -54,8 +53,7 @@ public class HelpCommand implements SubHandler {
      *
      * @param s CommandSender
      */
-    protected void help(CommandSender s) {
-        Audience sender = Prism.getAudiences().sender(s);
+    protected void help(CommandSender sender) {
         if (failed) {
             sender.sendMessage(Identity.nil(),
                   Prism.messenger.playerHeaderMsg(Il8nHelper.getMessage("prism-disabled-header")
