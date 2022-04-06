@@ -13,6 +13,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockFertilizeEvent;
 import org.bukkit.event.world.PortalCreateEvent;
 import org.bukkit.event.world.StructureGrowEvent;
 import org.bukkit.event.world.WorldLoadEvent;
@@ -40,6 +41,26 @@ public class PrismWorldEvents implements Listener {
                 } else {
                     RecordingQueue.addToQueue(ActionFactory.createGrow(type, block, "Environment"));
                 }
+            }
+        }
+    }
+
+    /**
+     * BlockFertilizeEvent.
+     * @param event StructureGrowEvent
+     */
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onBlockFertilize(final BlockFertilizeEvent event) {
+        String type = "bonemeal-use";
+        if (!Prism.getIgnore().event(type, event.getBlock().getWorld())) {
+            return;
+        }
+
+        for (final BlockState block : event.getBlocks()) {
+            if (event.getPlayer() != null) {
+                RecordingQueue.addToQueue(ActionFactory.createGrow(type, block, event.getPlayer()));
+            } else {
+                RecordingQueue.addToQueue(ActionFactory.createGrow(type, block, "Environment"));
             }
         }
     }
