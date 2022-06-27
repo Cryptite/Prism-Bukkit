@@ -87,8 +87,8 @@ public class ActionMessage {
                                 .color(NamedTextColor.GRAY))
                 .replaceFirstText(Pattern.compile("<spawnin>"),
                       builder -> Component.text("<S>").toBuilder()
-                                .color(NamedTextColor.GRAY)
-                                .clickEvent(ClickEvent.runCommand("/giveitem prid " + handler.getId()))
+                              .color(NamedTextColor.GRAY)
+                              .clickEvent(ClickEvent.runCommand("/pritem " + handler.getId()))
                                 .hoverEvent(HoverEvent.showText(Component.text("Click to spawn in this item")
                                       .color(NamedTextColor.DARK_AQUA))));
         return Component.text()
