@@ -12,18 +12,12 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.enchantment.EnchantItemEvent;
-import org.bukkit.event.inventory.CraftItemEvent;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryDragEvent;
-import org.bukkit.event.inventory.InventoryPickupItemEvent;
-import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.event.inventory.PrepareItemCraftEvent;
+import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.PlayerItemBreakEvent;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
@@ -36,6 +30,7 @@ public class PrismInventoryEvents implements Listener {
     private static final String REMOVE = "item-remove";
     private static final String BREAK = "item-break";
     private final Prism plugin;
+    public static final Set<UUID> trackableCustomInventories = new HashSet<>();
 
     /**
      * Constructor.
@@ -212,7 +207,11 @@ public class PrismInventoryEvents implements Listener {
 
         // This happens when opening someone else's inventory, so don't bother tracking it
         if (slotItem == null) {
-            return;
+            if (trackableCustomInventories.contains(player.getUniqueId())) {
+                slotItem = new ItemStack(Material.AIR);
+            } else {
+                return;
+            }
         }
         Prism.debug("HELD:" + ((heldItem != null) ? heldItem.toString() : "NULL"));
         Prism.debug("SLOT:" +  slotItem.toString());
