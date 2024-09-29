@@ -11,11 +11,7 @@ import me.botsko.prism.utils.IntPair;
 import me.botsko.prism.utils.block.Utilities;
 import org.bukkit.Location;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 
 /**
@@ -29,6 +25,7 @@ public class SqlInsertBuilder extends QueryBuilder implements InsertQuery {
 
     /**
      * Create an insert builder.
+     *
      * @param dataSource Data source
      */
     public SqlInsertBuilder(PrismDataSource dataSource) {
@@ -96,6 +93,8 @@ public class SqlInsertBuilder extends QueryBuilder implements InsertQuery {
                 }
             }
         } catch (SQLException e) {
+            Prism.debug(getClass().getTypeName() + " failed to insert at " + l.getWorld().getName() + "," + l.getX() + "," + l.getY() + "," + l.getZ()
+                    + " into " + prefix + " extra data: " + id + ", " + a.serialize());
             e.printStackTrace();
         }
         return id;
@@ -144,6 +143,7 @@ public class SqlInsertBuilder extends QueryBuilder implements InsertQuery {
 
     /**
      * Process the batch.
+     *
      * @throws SQLException on sql errors
      */
     public void processBatch() throws SQLException {
@@ -160,6 +160,7 @@ public class SqlInsertBuilder extends QueryBuilder implements InsertQuery {
 
     /**
      * Process any extra data associated with the ResultSet.
+     *
      * @param keys ResultSet
      * @throws SQLException SQLException.
      */
