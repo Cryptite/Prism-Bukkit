@@ -12,8 +12,8 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>Prism</artifactId>
     <properties>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>1.21</maven.compiler.source>
+        <maven.compiler.target>1.21</maven.compiler.target>
         <test.mysql.host>localhost</test.mysql.host>
         <test.mysql.user>prism</test.mysql.user>
         <test.mysql.password>prism</test.mysql.password>
@@ -36,12 +36,6 @@
             <artifactId>checker-qual</artifactId>
             <version>3.6.0</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>net.kyori</groupId>
-            <artifactId>adventure-text-serializer-legacy</artifactId>
-            <version>4.10.1</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>au.com.addstar.dripreporter</groupId>

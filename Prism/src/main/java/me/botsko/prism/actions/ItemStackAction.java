@@ -10,49 +10,25 @@ import me.botsko.prism.appliers.ChangeResultImpl;
 import me.botsko.prism.utils.EntityUtils;
 import me.botsko.prism.utils.InventoryUtils;
 import me.botsko.prism.utils.ItemUtils;
-import org.bukkit.Bukkit;
-import org.bukkit.Color;
-import org.bukkit.DyeColor;
-import org.bukkit.FireworkEffect;
+import org.bukkit.*;
 import org.bukkit.FireworkEffect.Builder;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Jukebox;
 import org.bukkit.block.banner.Pattern;
 import org.bukkit.block.banner.PatternType;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.ArmorStand;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Item;
-import org.bukkit.entity.ItemFrame;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.BannerMeta;
-import org.bukkit.inventory.meta.BookMeta;
-import org.bukkit.inventory.meta.EnchantmentStorageMeta;
-import org.bukkit.inventory.meta.FireworkEffectMeta;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.LeatherArmorMeta;
-import org.bukkit.inventory.meta.PotionMeta;
-import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.inventory.meta.*;
 import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionType;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Objects;
 
 public class ItemStackAction extends GenericAction {
 
@@ -135,9 +111,12 @@ public class ItemStackAction extends GenericAction {
             }
         } else if (meta instanceof PotionMeta) {
             final PotionMeta potion = (PotionMeta) meta;
-            actionData.potionType = potion.getBasePotionData().getType().toString().toLowerCase();
-            actionData.potionExtended = potion.getBasePotionData().isExtended();
-            actionData.potionUpgraded = potion.getBasePotionData().isUpgraded();
+            PotionType basePotionType = potion.getBasePotionType();
+            if (basePotionType != null) {
+                actionData.potionType = basePotionType.toString().toLowerCase();
+                actionData.potionExtended = basePotionType.isExtendable();
+                actionData.potionUpgraded = basePotionType.isUpgradeable();
+            }
         }
 
         // Written books

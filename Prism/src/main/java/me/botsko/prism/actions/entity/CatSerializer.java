@@ -14,8 +14,14 @@ public class CatSerializer extends EntitySerializer {
 
     @Override
     protected void deserializer(Entity entity) {
-        Cat.Type type = MiscUtils.getEnum(var, Cat.Type.ALL_BLACK);
-        ((Cat) entity).setCatType(type);
+        if (var != null) {
+            try {
+                Cat.Type type = Cat.Type.valueOf(var);
+                ((Cat) entity).setCatType(type);
+            } catch (Exception ignored) {
+                ((Cat) entity).setCatType(Cat.Type.ALL_BLACK);
+            }
+        }
     }
 
     @Override

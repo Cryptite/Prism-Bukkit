@@ -35,47 +35,47 @@ public class EnchantmentUtils {
     public static Enchantment getEnchantmentFromCommonName(String name) {
         switch (name.toLowerCase()) {
             case "aquaaffinity":
-                return Enchantment.WATER_WORKER;
+                return Enchantment.AQUA_AFFINITY;
             case "bane":
-                return Enchantment.DAMAGE_ARTHROPODS;
+                return Enchantment.BANE_OF_ARTHROPODS;
             case "efficiency":
-                return Enchantment.DIG_SPEED;
+                return Enchantment.EFFICIENCY;
             case "explosion":
-                return Enchantment.PROTECTION_EXPLOSIONS;
+                return Enchantment.BLAST_PROTECTION;
             case "fall":
-                return Enchantment.PROTECTION_FALL;
+                return Enchantment.FEATHER_FALLING;
             case "fire":
-                return Enchantment.PROTECTION_FIRE;
+                return Enchantment.FIRE_PROTECTION;
             case "fireaspect":
                 return Enchantment.FIRE_ASPECT;
             case "flame":
-                return Enchantment.ARROW_FIRE;
+                return Enchantment.FLAME;
             case "fortune":
-                return Enchantment.LOOT_BONUS_BLOCKS;
+                return Enchantment.FORTUNE;
             case "infinity":
-                return Enchantment.ARROW_INFINITE;
+                return Enchantment.INFINITY;
             case "knockback":
                 return Enchantment.KNOCKBACK;
             case "power":
-                return Enchantment.ARROW_DAMAGE;
+                return Enchantment.POWER;
             case "looting":
-                return Enchantment.LOOT_BONUS_MOBS;
+                return Enchantment.LOOTING;
             case "projectile":
-                return Enchantment.PROTECTION_PROJECTILE;
+                return Enchantment.PROJECTILE_PROTECTION;
             case "protection":
-                return Enchantment.PROTECTION_ENVIRONMENTAL;
+                return Enchantment.PROTECTION;
             case "punch":
-                return Enchantment.ARROW_KNOCKBACK;
+                return Enchantment.PUNCH;
             case "respiration":
-                return Enchantment.OXYGEN;
+                return Enchantment.RESPIRATION;
             case "sharpness":
-                return Enchantment.DAMAGE_ALL;
+                return Enchantment.SHARPNESS;
             case "silktouch":
                 return Enchantment.SILK_TOUCH;
             case "smite":
-                return Enchantment.DAMAGE_UNDEAD;
+                return Enchantment.SMITE;
             case "unbreaking":
-                return Enchantment.DURABILITY;
+                return Enchantment.UNBREAKING;
             default:
                 String formattedName = name.replace(' ','_');
                 NamespacedKey key = NamespacedKey.minecraft(formattedName);
@@ -94,41 +94,41 @@ public class EnchantmentUtils {
 
         String enchantName;
 
-        if (enchantment.equals(Enchantment.ARROW_DAMAGE)) {
+        if (enchantment.equals(Enchantment.POWER)) {
             enchantName = "power";
-        } else if (enchantment.equals(Enchantment.ARROW_FIRE)) {
+        } else if (enchantment.equals(Enchantment.FLAME)) {
             enchantName = "flame";
-        } else if (enchantment.equals(Enchantment.ARROW_INFINITE)) {
+        } else if (enchantment.equals(Enchantment.INFINITY)) {
             enchantName = "infinity";
-        } else if (enchantment.equals(Enchantment.ARROW_KNOCKBACK)) {
+        } else if (enchantment.equals(Enchantment.PUNCH)) {
             enchantName = "punch";
-        } else if (enchantment.equals(Enchantment.DAMAGE_ALL)) {
+        } else if (enchantment.equals(Enchantment.SHARPNESS)) {
             enchantName = "sharpness";
-        } else if (enchantment.equals(Enchantment.DAMAGE_ARTHROPODS)) {
+        } else if (enchantment.equals(Enchantment.BANE_OF_ARTHROPODS)) {
             enchantName = "bane of anthropods";
-        } else if (enchantment.equals(Enchantment.DAMAGE_UNDEAD)) {
+        } else if (enchantment.equals(Enchantment.SMITE)) {
             enchantName = "damage undead";
-        } else if (enchantment.equals(Enchantment.DIG_SPEED)) {
+        } else if (enchantment.equals(Enchantment.EFFICIENCY)) {
             enchantName = "efficiency";
-        } else if (enchantment.equals(Enchantment.DURABILITY)) {
+        } else if (enchantment.equals(Enchantment.UNBREAKING)) {
             enchantName = "unbreaking";
-        } else if (enchantment.equals(Enchantment.LOOT_BONUS_BLOCKS)) {
+        } else if (enchantment.equals(Enchantment.FORTUNE)) {
             enchantName = "fortune";
-        } else if (enchantment.equals(Enchantment.LOOT_BONUS_MOBS)) {
+        } else if (enchantment.equals(Enchantment.LOOTING)) {
             enchantName = "looting";
-        } else if (enchantment.equals(Enchantment.OXYGEN)) {
+        } else if (enchantment.equals(Enchantment.RESPIRATION)) {
             enchantName = "respiration";
-        } else if (enchantment.equals(Enchantment.PROTECTION_ENVIRONMENTAL)) {
+        } else if (enchantment.equals(Enchantment.PROTECTION)) {
             enchantName = "protection";
-        } else if (enchantment.equals(Enchantment.PROTECTION_EXPLOSIONS)) {
+        } else if (enchantment.equals(Enchantment.BLAST_PROTECTION)) {
             enchantName = "blast protection";
-        } else if (enchantment.equals(Enchantment.PROTECTION_FALL)) {
+        } else if (enchantment.equals(Enchantment.FEATHER_FALLING)) {
             enchantName = "feather falling";
-        } else if (enchantment.equals(Enchantment.PROTECTION_FIRE)) {
+        } else if (enchantment.equals(Enchantment.FIRE_PROTECTION)) {
             enchantName = "fire protection";
-        } else if (enchantment.equals(Enchantment.PROTECTION_PROJECTILE)) {
+        } else if (enchantment.equals(Enchantment.PROJECTILE_PROTECTION)) {
             enchantName = "projectile protection";
-        } else if (enchantment.equals(Enchantment.WATER_WORKER)) {
+        } else if (enchantment.equals(Enchantment.AQUA_AFFINITY)) {
             enchantName = "aqua affinity";
         } else if (enchantment.equals(Enchantment.VANISHING_CURSE)) {
             enchantName = "vanishing curse";

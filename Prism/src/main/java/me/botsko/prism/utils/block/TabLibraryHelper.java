@@ -28,7 +28,7 @@ public class TabLibraryHelper {
             Material.SNOW,
             Material.SNOW_BLOCK,
             Material.WATER,
-            Material.GRASS,
+            Material.SHORT_GRASS,
             Material.SOUL_SAND,
             Material.NETHERRACK);
 

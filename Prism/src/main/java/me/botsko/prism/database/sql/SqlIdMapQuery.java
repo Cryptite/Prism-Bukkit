@@ -4,14 +4,9 @@ import me.botsko.prism.Prism;
 import me.botsko.prism.database.IdMapQuery;
 import me.botsko.prism.database.PrismDataSource;
 import me.botsko.prism.utils.IntPair;
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.Validate;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.SQLWarning;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;

@@ -15,7 +15,14 @@ public class ZombieVillagerSerlializer extends EntitySerializer {
 
     @Override
     protected void deserializer(Entity entity) {
-        ((ZombieVillager) entity).setVillagerProfession(MiscUtils.getEnum(profession, Profession.FARMER));
+        if (profession != null) {
+            try {
+                Profession prof = Profession.valueOf(profession);
+                ((ZombieVillager) entity).setVillagerProfession(prof);
+            } catch (Exception ignored) {
+                ((ZombieVillager) entity).setVillagerProfession(Profession.FARMER);
+            }
+        }
     }
 
     @Override

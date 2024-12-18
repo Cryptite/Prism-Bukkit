@@ -15,7 +15,14 @@ public class VillagerSerializer extends EntitySerializer {
 
     @Override
     protected void deserializer(Entity entity) {
-        ((Villager) entity).setProfession(MiscUtils.getEnum(profession, Profession.FARMER));
+        if (profession != null) {
+            try {
+                Profession prof = Profession.valueOf(profession);
+                ((Villager) entity).setProfession(prof);
+            } catch (Exception ignored) {
+                ((Villager) entity).setProfession(Profession.FARMER);
+            }
+        }
     }
 
     @Override
