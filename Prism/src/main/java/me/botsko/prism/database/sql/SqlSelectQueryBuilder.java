@@ -28,13 +28,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 
 public class SqlSelectQueryBuilder extends QueryBuilder implements SelectQuery {
 
@@ -560,7 +555,7 @@ public class SqlSelectQueryBuilder extends QueryBuilder implements SelectQuery {
 
                             try {
                                 newData = Bukkit.createBlockData(item.getType());
-                            } catch (IllegalArgumentException e) {
+                            } catch (NullPointerException | IllegalArgumentException e) {
                                 // This exception occurs, for example, with "ItemStack{DIAMOND_LEGGINGS x 1}"
                                 Prism.debug("IllegalArgumentException for record #" + rowId
                                         + " calling createBlockData for " + item.toString());

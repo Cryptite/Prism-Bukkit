@@ -24,7 +24,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.*;
-import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionType;
 
 import java.util.*;
@@ -288,8 +287,9 @@ public class ItemStackAction extends GenericAction {
         } else if (meta instanceof PotionMeta) {
             final PotionType potionType = PotionType.valueOf(actionData.potionType.toUpperCase());
             final PotionMeta potionMeta = (PotionMeta) meta;
-            potionMeta.setBasePotionData(new PotionData(potionType, actionData.potionExtended,
-                    actionData.potionUpgraded));
+            potionMeta.setBasePotionType(potionType); // Just this simple in 1.21
+//            potionMeta.setBasePotionData(new PotionData(potionType, actionData.potionExtended,
+//                    actionData.potionUpgraded));
         }
         if (meta instanceof FireworkEffectMeta && actionData.effectColors != null
                 && actionData.effectColors.length > 0) {
