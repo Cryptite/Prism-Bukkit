@@ -244,7 +244,7 @@ public class ItemStackAction extends GenericAction {
         }
         actionData = gson().fromJson(data, ItemStackActionData.class);
 
-        item = new ItemStack(getMaterial(), actionData.amt);
+        item = new ItemStack(getMaterial(), Math.max(1, actionData.amt));
 
         MaterialState.setItemDamage(item, actionData.durability);
 
@@ -284,7 +284,7 @@ public class ItemStackAction extends GenericAction {
             bookMeta.setTitle(actionData.title);
             bookMeta.setPages(actionData.content);
             item.setItemMeta(bookMeta);
-        } else if (meta instanceof PotionMeta) {
+        } else if (meta instanceof PotionMeta && actionData.potionType != null) {
             final PotionType potionType = PotionType.valueOf(actionData.potionType.toUpperCase());
             final PotionMeta potionMeta = (PotionMeta) meta;
             potionMeta.setBasePotionType(potionType); // Just this simple in 1.21

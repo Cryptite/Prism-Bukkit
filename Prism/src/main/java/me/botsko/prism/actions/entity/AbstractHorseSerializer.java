@@ -4,12 +4,7 @@ import me.botsko.prism.utils.ItemUtils;
 import me.botsko.prism.utils.MiscUtils;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
-import org.bukkit.entity.AbstractHorse;
-import org.bukkit.entity.ChestedHorse;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Horse;
-import org.bukkit.entity.Llama;
+import org.bukkit.entity.*;
 
 public class AbstractHorseSerializer extends EntitySerializer {
     protected String horseColor = null;
@@ -50,9 +45,10 @@ public class AbstractHorseSerializer extends EntitySerializer {
         dom = h.getDomestication();
         maxDom = h.getMaxDomestication();
         jump = h.getJumpStrength();
-        maxHealth = h.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue();
 
-        AttributeInstance attributeInstance = h.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED);
+        maxHealth = h.getAttribute(Attribute.MAX_HEALTH).getBaseValue();
+
+        AttributeInstance attributeInstance = h.getAttribute(Attribute.MOVEMENT_SPEED);
         if (attributeInstance != null) {
             movementSpeed = attributeInstance.getBaseValue();
         }
@@ -91,9 +87,9 @@ public class AbstractHorseSerializer extends EntitySerializer {
         h.setDomestication(dom);
         h.setMaxDomestication(maxDom);
         h.setJumpStrength(jump);
-        h.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(maxHealth);
+        h.getAttribute(Attribute.MAX_HEALTH).setBaseValue(maxHealth);
 
-        AttributeInstance attributeInstance = h.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED);
+        AttributeInstance attributeInstance = h.getAttribute(Attribute.MOVEMENT_SPEED);
         if (attributeInstance != null) {
             attributeInstance.setBaseValue(movementSpeed);
         }

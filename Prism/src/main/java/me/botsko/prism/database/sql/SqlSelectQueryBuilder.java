@@ -554,7 +554,7 @@ public class SqlSelectQueryBuilder extends QueryBuilder implements SelectQuery {
                             BlockData newData;
 
                             try {
-                                newData = Bukkit.createBlockData(item.getType());
+                                newData = item.getType().createBlockData();
                             } catch (NullPointerException | IllegalArgumentException e) {
                                 // This exception occurs, for example, with "ItemStack{DIAMOND_LEGGINGS x 1}"
                                 Prism.debug("IllegalArgumentException for record #" + rowId
@@ -657,8 +657,7 @@ public class SqlSelectQueryBuilder extends QueryBuilder implements SelectQuery {
             }
         } catch (NullPointerException e) {
             if (RecordingManager.failedDbConnectionCount == 0) {
-                Prism.log(
-                        "Prism database error. Connection missing. Leaving actions to log in queue.");
+                Prism.log("Prism database error. Connection missing. Leaving actions to log in queue.");
                 Prism.debug(e.getMessage());
             }
             RecordingManager.failedDbConnectionCount++;
