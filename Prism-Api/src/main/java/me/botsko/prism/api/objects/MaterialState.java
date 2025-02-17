@@ -51,18 +51,22 @@ public class MaterialState {
      * @return ItemStack
      */
     public ItemStack asItem() {
-        ItemStack item = new ItemStack(material, 1);
+        try {
+            ItemStack item = new ItemStack(material, 1);
 
-        if (!state.isEmpty()) {
-            try {
-                setItemDamage(item, Short.parseShort(state));
-            } catch (NumberFormatException ignored) {
-                //ignored
+            if (!state.isEmpty()) {
+                try {
+                    setItemDamage(item, Short.parseShort(state));
+                } catch (NumberFormatException ignored) {
+                    //ignored
+                }
             }
 
+            return item;
+        } catch (IllegalArgumentException ignored) {
         }
 
-        return item;
+        return null;
     }
 
     @Override
