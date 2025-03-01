@@ -19,4 +19,6 @@ jobs:
 
     - uses: actions/upload-artifact@v4
       with:
-        path: Prism/target/*.jar
+        path: |
+          Prism/target/Prism-*.jar
+          Prism-Api/target/Prism-Api-*.jar
